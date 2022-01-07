@@ -13,6 +13,28 @@ A [Rust](https://www.rust-lang.org/) module with bindings for [python](https://w
 
 ## Development Setup
 
+To build the *euklid_rs* python module [PyO3](https://github.com/PyO3/pyo3) and [maturin](https://github.com/PyO3/maturin) is used.
+
+Install the latest version of Rust with the [Getting started](https://www.rust-lang.org/learn/get-started) guide.
+
+```
+# Install python dependencies
+pip install -r ./requirements.txt
+
+# Build euklid_rs module
+maturin develop
+
+# Run python tests with pytest
+pytest
+
+```
+
+## Build Setup
+
+```
+# Build euklid_rs module
+maturin build
+```
 
 # License
 
