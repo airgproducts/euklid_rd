@@ -1,5 +1,11 @@
 # Euklid_rs [2D and 3D vector operations]
 
+![[maturin]](https://github.com/naschidaniel/spatialmos/actions/workflows/maturin.yml/badge.svg?name=maturin) 
+![[pytest]](https://github.com/naschidaniel/spatialmos/actions/workflows/pytest.yml/badge.svg?name=pytest) 
+![[pylint]](https://github.com/naschidaniel/spatialmos/actions/workflows/pylint.yml/badge.svg?name=pylint) 
+![[rsaudit]](https://github.com/naschidaniel/spatialmos/actions/workflows/rsaudit.yml/badge.svg?name=rsaudit) 
+![[rstest]](https://github.com/naschidaniel/spatialmos/actions/workflows/rstest.yml/badge.svg?name=rstest)
+
 The project will replace [euklid](https://github.com/airgproducts/euklid).
 The latest stable version of euklid can be obtained from [![PyPI version](https://badge.fury.io/py/euklid.svg)](https://badge.fury.io/py/euklid).
 
@@ -13,6 +19,28 @@ A [Rust](https://www.rust-lang.org/) module with bindings for [python](https://w
 
 ## Development Setup
 
+To build the *euklid_rs* python module [PyO3](https://github.com/PyO3/pyo3) and [maturin](https://github.com/PyO3/maturin) is used.
+
+Install the latest version of Rust with the [Getting started](https://www.rust-lang.org/learn/get-started) guide.
+
+```
+# Install python dependencies
+pip install -r ./requirements.txt
+
+# Build euklid_rs module
+maturin develop
+
+# Run python tests with pytest
+pytest
+
+```
+
+## Build Setup
+
+```
+# Build euklid_rs module
+maturin build
+```
 
 # License
 

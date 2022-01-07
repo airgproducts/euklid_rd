@@ -1,0 +1,13 @@
+[package]
+name = "euklid_rs"
+version = "0.1.0"
+authors = ["Simon Klemenc <simon@airg.family>", "Daniel Naschberger <daniel@naschi.at>"]
+description = "A Rust module with bindings for python to help dealing with common CAD-like operations like Vectors, PolyLines and Spline Curves."
+edition = "2021"
+
+[lib]
+name = "euklid_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.15.1", features = ["extension-module"] }
