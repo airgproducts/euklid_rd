@@ -27,7 +27,7 @@ jobs:
     - name: copy euklid_rs
       run: |
         ls ./target/wheels/
-        cp ./target/wheels/euklid_rs-0.1.0-cp310-cp310-linux_x86_64.whl .
+        cp ./target/wheels/euklid_rs-0.1.0-cp310-cp310-manylinux_2_24_x86_64.whl .
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -35,8 +35,8 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir -r ./container/py_container/requirements.txt
-        pip install euklid_rs-0.1.0-cp310-cp310-linux_x86_64.whl
+        pip install --no-cache-dir -r ./requirements.txt
+        pip install euklid_rs-0.1.0-cp310-cp310-manylinux_2_24_x86_64.whl
     - name: Test with pytest
       run: |
         pytest --cov=py_euklid_rs ./tests/

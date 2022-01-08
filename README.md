@@ -1,10 +1,10 @@
 # Euklid_rs [2D and 3D vector operations]
 
-![[maturin]](https://github.com/naschidaniel/spatialmos/actions/workflows/maturin.yml/badge.svg?name=maturin) 
-![[pytest]](https://github.com/naschidaniel/spatialmos/actions/workflows/pytest.yml/badge.svg?name=pytest) 
-![[pylint]](https://github.com/naschidaniel/spatialmos/actions/workflows/pylint.yml/badge.svg?name=pylint) 
-![[rsaudit]](https://github.com/naschidaniel/spatialmos/actions/workflows/rsaudit.yml/badge.svg?name=rsaudit) 
-![[rstest]](https://github.com/naschidaniel/spatialmos/actions/workflows/rstest.yml/badge.svg?name=rstest)
+![[maturin]](https://github.com/airgproducts/euklid_rs/actions/workflows/maturin.yml/badge.svg?name=maturin) 
+![[pytest]](https://github.com/airgproducts/euklid_rs/actions/workflows/pytest.yml/badge.svg?name=pytest) 
+![[pylint]](https://github.com/airgproducts/euklid_rs/actions/workflows/pylint.yml/badge.svg?name=pylint) 
+![[rsaudit]](https://github.com/airgproducts/euklid_rs/actions/workflows/rsaudit.yml/badge.svg?name=rsaudit) 
+![[rstest]](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml/badge.svg?name=rstest)
 
 The project will replace [euklid](https://github.com/airgproducts/euklid).
 The latest stable version of euklid can be obtained from [![PyPI version](https://badge.fury.io/py/euklid.svg)](https://badge.fury.io/py/euklid).
