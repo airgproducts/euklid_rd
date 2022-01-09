@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-
+use pyo3::class::basic::PyObjectProtocol;
 
 #[pyclass]
 struct Vector2D {
@@ -17,11 +17,18 @@ impl Vector2D {
         Vector2D {x: v[0], y: v[1]}
     }
     
-    pub fn normalized(&mut self) -> PyResult<()> {
+    pub fn normalized(&self) -> PyResult<Self> {
         let length = (self.x * self.x + self.y * self.y).sqrt();
-        self.x = self.x / length;
-        self.y = self.y / length;
-        Ok(())
+        let x = self.x / length;
+        let y = self.y / length;
+        Ok(Vector2D {x, y})
+    }
+}
+
+#[pyproto]
+impl PyObjectProtocol for Vector2D {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Vector2D({:.4} {:.4})", self.x, self.y))
     }
 }
 

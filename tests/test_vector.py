@@ -16,23 +16,22 @@ class TestRustModules(unittest.TestCase):
         self.assertIs(type(p1), Vector2D)
         self.assertEqual(p1.x, 0.0)
         self.assertEqual(p1.y, 0.0)
+        self.assertEqual(str(p1), 'Vector2D(0.0000 0.0000)')
 
     def test_vector2d_normalized_values(self):
         '''test_vector2d_normalized_values checks if the values'''
         p1 = Vector2D([1, 1])
-        p1.normalized()
-        self.assertEqual(round(p1.x, 4), 0.7071)
-        self.assertEqual(round(p1.y, 4), 0.7071)
+
+        self.assertEqual(str(p1.normalized()), 'Vector2D(0.7071 0.7071)')
 
         p2 = Vector2D([0, 0])
-        p2.normalized()
-        self.assertTrue(math.isnan(round(p2.x, 4)))
-        self.assertTrue(math.isnan(round(p2.y, 4)))
+        self.assertTrue(math.isnan(p2.normalized().x))
+        self.assertTrue(math.isnan(p2.normalized().y))
+
 
         p3 = Vector2D([2, 3])
-        p3.normalized()
-        self.assertEqual(round(p3.x, 4), 0.5547)
-        self.assertEqual(round(p3.y, 4), 0.8321)
+        self.assertEqual(round(p3.normalized().x, 4), 0.5547)
+        self.assertEqual(round(p3.normalized().y, 4), 0.8321)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
