@@ -1,34 +1,82 @@
+use std::convert::TryFrom;
 use pyo3::prelude::*;
+use pyo3::exceptions::PyIndexError;
+use pyo3::class::number::PyNumberProtocol;
+use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::class::basic::PyObjectProtocol;
+use nalgebra as na;
 
 #[pyclass]
+#[derive(Clone, Copy)]
 struct Vector2D {
-    #[pyo3(get, set)]
-    x: f32,
-    #[pyo3(get, set)]
-    y: f32,
+    vec: na::Vector2<f64>
 }
 
 
 #[pymethods]
 impl Vector2D {
     #[new]
-    pub fn __new__(v: [f32; 2]) -> Self {
-        Vector2D {x: v[0], y: v[1]}
+    pub fn __new__(v: [f64; 2]) -> Self {
+        Vector2D {vec: na::Vector2::new(v[0], v[1])}
     }
     
     pub fn normalized(&self) -> PyResult<Self> {
-        let length = (self.x * self.x + self.y * self.y).sqrt();
-        let x = self.x / length;
-        let y = self.y / length;
-        Ok(Vector2D {x, y})
+        let length = self.vec.norm();
+
+        return Ok(Vector2D {vec: self.vec / length});
+    }
+
+    pub fn length(&self) -> PyResult<f64> {
+        return Ok(self.vec.norm());
     }
 }
 
 #[pyproto]
 impl PyObjectProtocol for Vector2D {
     fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("Vector2D({:.4} {:.4})", self.x, self.y))
+        Ok(format!("Vector2D({:.4} {:.4})", self.vec[0], self.vec[1]))
+    }
+
+}
+
+#[pyproto]
+impl PyNumberProtocol for Vector2D {
+    fn __add__(left: Self, other: Self) -> PyResult<Self> {
+        return Ok(Self {vec: left.vec + other.vec });
+   }
+
+   fn __sub__(lhs: Self, rhs: Self) -> PyResult<Self> {
+       return Ok(Self {vec: lhs.vec - rhs.vec })
+   }
+
+   fn __mul__(lhs: Self, rhs: f64) -> PyResult<Self> {
+       return Ok(Self {vec: lhs.vec * rhs});
+   }
+
+   fn __truediv__(lhs: Self, rhs: f64) -> PyResult<Self> {
+       return Ok(Self {vec: lhs.vec / rhs});
+   }
+}
+
+#[pyproto]
+impl PySequenceProtocol for Vector2D {
+    fn __getitem__(&self, idx: isize) -> PyResult<f64> {
+        if idx < 0 || idx > 1 {
+            return Err(PyIndexError::new_err("index out of range"));
+        }
+        let n_us = usize::try_from(idx).unwrap();
+        return Ok(self.vec[n_us]);
+        
+    }
+
+    fn __setitem__(&mut self, idx: isize, value: f64) -> PyResult<()> {
+        if idx < 0 || idx > 1 {
+            return Err(PyIndexError::new_err("index out of range"));
+        }
+        let n_us = usize::try_from(idx).unwrap();
+        self.vec[n_us] = value;
+        
+        return Ok({});
     }
 }
 
