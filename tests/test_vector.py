@@ -14,6 +14,27 @@ class TestRustModules(unittest.TestCase):
         self.p2 = Vector2D([1,1])
         self.p3 = Vector2D([2,3])
 
+    def test_angle(self):
+        '''test_angle of a vector'''
+        self.assertEqual(round(self.p2.angle(), 4), 0.7854)
+        self.assertEqual(round(self.p3.angle(), 4), 0.9828)
+
+    def test_copy(self):
+        '''test_copy a vector'''
+        self.assertEqual(str(self.p1), 'Vector2D(0.0000 0.0000)')
+        result = self.p1.copy()
+        self.assertEqual(str(result), 'Vector2D(0.0000 0.0000)')
+
+    def test_cross(self):
+        '''test_cross product of a vector'''
+        self.assertEqual(round(self.p2.cross(self.p3), 4), 1.)
+        self.assertEqual(round(self.p3.cross(self.p2), 4), -1)
+
+    def test_dot(self):
+        '''test_dot of two vectors'''
+        self.assertEqual(round(self.p2.dot(self.p3), 4), 5.)
+        self.assertEqual(round(self.p3.dot(self.p2), 4), 5)
+
     def test_vector2d_init_values(self):
         '''test_vector2d_init_values'''
         self.assertIs(type(self.p1), Vector2D)

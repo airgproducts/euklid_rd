@@ -16,11 +16,31 @@ struct Vector2D {
 #[pymethods]
 impl Vector2D {
     #[new]
-    pub fn __new__(v: [f64; 2]) -> Self {
-        let v =  na::Vector2::new(v[0], v[1]);
-        Self {v}
+    pub fn __new__(v: [f64; 2]) -> PyResult<Self> {
+        let v = na::Vector2::new(v[0], v[1]);
+        Ok(Self {v})
+    }
+
+    pub fn angle(&self) -> PyResult<f64> {
+        let result = f64::atan2(self.v[1], self.v[0]);
+        Ok(result)
     }
     
+    pub fn copy(&self) -> PyResult<Self> {
+        let v = self.v.clone();
+        Ok(Self {v})
+    }
+
+    pub fn cross(&self, other: Self) -> PyResult<f64> {
+        let result = self.v[0] * other.v[1] - other.v[0] * self.v[1];
+        Ok(result)
+    }
+
+    pub fn dot(&self, other: &Self) -> PyResult<f64> {
+        let result = self.v.dot(&other.v);
+        Ok(result)
+    }
+
     pub fn normalized(&self) -> PyResult<Self> {
         let v = self.v / self.v.norm();
         Ok(Self {v})
