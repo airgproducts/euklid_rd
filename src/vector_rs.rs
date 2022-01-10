@@ -9,7 +9,7 @@ use nalgebra as na;
 #[pyclass]
 #[derive(Clone, Copy)]
 struct Vector2D {
-    values: na::Vector2<f64>,
+    v: na::Vector2<f64>,
 }
 
 
@@ -17,24 +17,24 @@ struct Vector2D {
 impl Vector2D {
     #[new]
     pub fn __new__(v: [f64; 2]) -> Self {
-        let values =  na::Vector2::new(v[0], v[1]);
-        Vector2D {values}
+        let v =  na::Vector2::new(v[0], v[1]);
+        Vector2D {v}
     }
     
     pub fn normalized(&self) -> PyResult<Self> {
-        let values = self.values / self.values.norm();
-        Ok(Vector2D {values})
+        let v = self.v / self.v.norm();
+        Ok(Vector2D {v})
     }
 
     pub fn length(&self) -> PyResult<f64> {
-        Ok(self.values.norm())
+        Ok(self.v.norm())
     }
 }
 
 #[pyproto]
 impl PyObjectProtocol for Vector2D {
     fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("Vector2D({:.4} {:.4})", self.values[0], self.values[1]))
+        Ok(format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1]))
     }
 
 }
@@ -42,19 +42,19 @@ impl PyObjectProtocol for Vector2D {
 #[pyproto]
 impl PyNumberProtocol for Vector2D {
     fn __add__(lhs: Self, rhs: Self) -> PyResult<Self> {
-        Ok(Self {values: lhs.values + rhs.values })
+        Ok(Self {v: lhs.v + rhs.v })
    }
 
    fn __sub__(lhs: Self, rhs: Self) -> PyResult<Self> {
-       Ok(Vector2D {values: lhs.values - rhs.values })
+       Ok(Vector2D {v: lhs.v - rhs.v })
    }
 
    fn __mul__(lhs: Self, value: f64) -> PyResult<Self> {
-       Ok(Vector2D {values: lhs.values * value})
+       Ok(Vector2D {v: lhs.v * value})
    }
 
    fn __truediv__(lhs: Self, value: f64) -> PyResult<Self> {
-       Ok(Vector2D {values: lhs.values / value})
+       Ok(Vector2D {v: lhs.v / value})
    }
 }
 
@@ -64,7 +64,7 @@ impl PySequenceProtocol for Vector2D {
         match idx {
             0 | 1 => {
                 let n_us = usize::try_from(idx).unwrap();
-                Ok(self.values[n_us])
+                Ok(self.v[n_us])
             }
             _ => Err(PyIndexError::new_err("index out of range"))
         }        
@@ -74,7 +74,7 @@ impl PySequenceProtocol for Vector2D {
         match idx {
             0 | 1 => {
                 let n_us = usize::try_from(idx).unwrap();
-                self.values[n_us] = value;
+                self.v[n_us] = value;
                 Ok(())
             }
             _ => Err(PyIndexError::new_err("index out of range"))
