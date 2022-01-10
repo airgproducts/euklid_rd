@@ -18,12 +18,12 @@ impl Vector2D {
     #[new]
     pub fn __new__(v: [f64; 2]) -> Self {
         let v =  na::Vector2::new(v[0], v[1]);
-        Vector2D {v}
+        Self {v}
     }
     
     pub fn normalized(&self) -> PyResult<Self> {
         let v = self.v / self.v.norm();
-        Ok(Vector2D {v})
+        Ok(Self {v})
     }
 
     pub fn length(&self) -> PyResult<f64> {
@@ -46,15 +46,15 @@ impl PyNumberProtocol for Vector2D {
    }
 
    fn __sub__(lhs: Self, rhs: Self) -> PyResult<Self> {
-       Ok(Vector2D {v: lhs.v - rhs.v })
+       Ok(Self {v: lhs.v - rhs.v })
    }
 
    fn __mul__(lhs: Self, value: f64) -> PyResult<Self> {
-       Ok(Vector2D {v: lhs.v * value})
+       Ok(Self {v: lhs.v * value})
    }
 
    fn __truediv__(lhs: Self, value: f64) -> PyResult<Self> {
-       Ok(Vector2D {v: lhs.v / value})
+       Ok(Self {v: lhs.v / value})
    }
 }
 
