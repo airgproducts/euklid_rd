@@ -1,11 +1,13 @@
 use std::convert::TryFrom;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyIndexError;
+use pyo3::class::number::PyNumberProtocol;
 use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::class::basic::PyObjectProtocol;
 use nalgebra as na;
 
 #[pyclass]
+#[derive(Clone, Copy)]
 struct Vector2D {
     vec: na::Vector2<f64>
 }
@@ -35,6 +37,25 @@ impl PyObjectProtocol for Vector2D {
         Ok(format!("Vector2D({:.4} {:.4})", self.vec[0], self.vec[1]))
     }
 
+}
+
+#[pyproto]
+impl PyNumberProtocol for Vector2D {
+    fn __add__(left: Self, other: Self) -> PyResult<Self> {
+        return Ok(Self {vec: left.vec + other.vec });
+   }
+
+   fn __sub__(lhs: Self, rhs: Self) -> PyResult<Self> {
+       return Ok(Self {vec: lhs.vec - rhs.vec })
+   }
+
+   fn __mul__(lhs: Self, rhs: f64) -> PyResult<Self> {
+       return Ok(Self {vec: lhs.vec * rhs});
+   }
+
+   fn __truediv__(lhs: Self, rhs: f64) -> PyResult<Self> {
+       return Ok(Self {vec: lhs.vec / rhs});
+   }
 }
 
 #[pyproto]
