@@ -3,9 +3,14 @@
 .pytest_cache
 __pycache__
 *.pyc
-
+env
 
 # Rust
 
 /target
 Cargo.lock
+
+
+# Code-Editor
+.vscode
+run.sh
