@@ -11,7 +11,7 @@ use nalgebra as na;
 
 #[pyclass]
 #[derive(Clone, Copy)]
-pub struct Vector2D {
+struct Vector2D {
     v: na::Vector2<f64>,
 }
 
@@ -25,8 +25,7 @@ impl Vector2D {
     }
 
     pub fn angle(&self) -> f64 {
-        let result = f64::atan2(self.v[1], self.v[0]);
-        result
+        f64::atan2(self.v[1], self.v[0])
     }
     
     pub fn copy(&self) -> Self {
@@ -35,13 +34,11 @@ impl Vector2D {
     }
 
     pub fn cross(&self, other: Self) -> f64 {
-        let result = self.v[0] * other.v[1] - other.v[0] * self.v[1];
-        result
+        self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
 
     pub fn dot(&self, other: &Self) -> f64 {
-        let result = self.v.dot(&other.v);
-        result
+        self.v.dot(&other.v)
     }
 
     pub fn normalized(&self) -> Self {
@@ -102,7 +99,7 @@ impl PySequenceProtocol for Vector2D {
                 Ok(self.v[n_us])
             }
             _ => Err(PyIndexError::new_err("index out of range"))
-        }        
+        }
     }
 
     fn __setitem__(&mut self, idx: isize, value: f64) -> PyResult<()> {

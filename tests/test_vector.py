@@ -13,7 +13,7 @@ class TestRustModules(unittest.TestCase):
         self.p1 = Vector2D([0,0])
         self.p2 = Vector2D([1,1])
         self.p3 = Vector2D([2,3])
-
+jiji
     def test_angle(self):
         '''test_angle of a vector'''
         self.assertEqual(round(self.p2.angle(), 4), 0.7854)
