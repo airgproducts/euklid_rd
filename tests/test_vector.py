@@ -13,7 +13,7 @@ class TestRustModules(unittest.TestCase):
         self.p1 = Vector2D([0,0])
         self.p2 = Vector2D([1,1])
         self.p3 = Vector2D([2,3])
-
+        
     def test_angle(self):
         '''test_angle of a vector'''
         self.assertEqual(round(self.p2.angle(), 4), 0.7854)
@@ -71,19 +71,37 @@ class TestRustModules(unittest.TestCase):
 
     def test__add__(self):
         '''test__add__ tries to add two vectors'''
-        self.assertEqual(str(self.p2 + self.p3), 'Vector2D(3.0000 4.0000)')
+        self.assertEqual(self.p2 + self.p3, Vector2D([3, 4]))
 
     def test__sub__(self):
         '''test__add__ tries to subtract two vectors'''
-        self.assertEqual(str(self.p2 - self.p3), 'Vector2D(-1.0000 -2.0000)')
+        self.assertEqual(self.p2 - self.p3, Vector2D([-1, -2]))
 
     def test__mul__(self):
         '''test__mul__ multiplies a vector'''
-        self.assertEqual(str(self.p3 * 3), 'Vector2D(6.0000 9.0000)')
+        self.assertEqual(self.p3 * 3, Vector2D([6, 9]))
 
     def test__truediv__(self):
         '''test__truediv__ devides a vector'''
-        self.assertEqual(str(self.p3 / 2), 'Vector2D(1.0000 1.5000)')
+        self.assertEqual(self.p3 / 2, Vector2D([1, 1.5]))
+    
+    def test_compare(self):
+        short = self.p2 * 0.8
+        long = self.p2 / 0.8
+
+        self.assertTrue(self.p2 == self.p2)
+
+        self.assertTrue(short < self.p2)
+        self.assertTrue(short <= self.p2)
+        
+        self.assertTrue(long > self.p2)
+        self.assertTrue(long >= self.p2)
+
+        self.assertFalse(short > self.p2)
+        self.assertFalse(short >= self.p2)
+
+        self.assertFalse(long < self.p2)
+        self.assertFalse(long <= self.p2)
 
 if __name__ == '__main__':
     unittest.main(exit=False)

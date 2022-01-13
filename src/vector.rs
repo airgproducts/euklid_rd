@@ -1,9 +1,12 @@
 use std::convert::TryFrom;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyIndexError;
+use pyo3::exceptions::PyNotImplementedError;
 use pyo3::class::number::PyNumberProtocol;
 use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::class::basic::PyObjectProtocol;
+use pyo3::types::PyDict;
+use pyo3::wrap_pymodule;
 use nalgebra as na;
 
 #[pyclass]
@@ -21,33 +24,30 @@ impl Vector2D {
         Ok(Self {v})
     }
 
-    pub fn angle(&self) -> PyResult<f64> {
-        let result = f64::atan2(self.v[1], self.v[0]);
-        Ok(result)
+    pub fn angle(&self) -> f64 {
+        f64::atan2(self.v[1], self.v[0])
     }
     
-    pub fn copy(&self) -> PyResult<Self> {
+    pub fn copy(&self) -> Self {
         let v = self.v.clone();
-        Ok(Self {v})
+        Self {v}
     }
 
-    pub fn cross(&self, other: Self) -> PyResult<f64> {
-        let result = self.v[0] * other.v[1] - other.v[0] * self.v[1];
-        Ok(result)
+    pub fn cross(&self, other: Self) -> f64 {
+        self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
 
-    pub fn dot(&self, other: &Self) -> PyResult<f64> {
-        let result = self.v.dot(&other.v);
-        Ok(result)
+    pub fn dot(&self, other: &Self) -> f64 {
+        self.v.dot(&other.v)
     }
 
-    pub fn normalized(&self) -> PyResult<Self> {
+    pub fn normalized(&self) -> Self {
         let v = self.v / self.v.norm();
-        Ok(Self {v})
+        Self {v}
     }
 
-    pub fn length(&self) -> PyResult<f64> {
-        Ok(self.v.norm())
+    pub fn length(&self) -> f64 {
+        self.v.norm()
     }
 }
 
@@ -55,6 +55,18 @@ impl Vector2D {
 impl PyObjectProtocol for Vector2D {
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1]))
+    }
+
+    fn __richcmp__(&'p self, other: PyRef<'p, Vector2D>, op: pyo3::basic::CompareOp) -> PyResult<bool> {
+
+        match op {
+            pyo3::basic::CompareOp::Eq => Ok(self.v == other.v),
+            pyo3::basic::CompareOp::Lt => Ok(self.length() < other.length()),
+            pyo3::basic::CompareOp::Le => Ok(self.length() <= other.length()),
+            pyo3::basic::CompareOp::Gt => Ok(self.length() > other.length()),
+            pyo3::basic::CompareOp::Ge => Ok(self.length() >= other.length()),
+            _ => Err(PyNotImplementedError::new_err("Not Implemented")),
+        }
     }
 
 }
@@ -87,7 +99,7 @@ impl PySequenceProtocol for Vector2D {
                 Ok(self.v[n_us])
             }
             _ => Err(PyIndexError::new_err("index out of range"))
-        }        
+        }
     }
 
     fn __setitem__(&mut self, idx: isize, value: f64) -> PyResult<()> {
@@ -102,8 +114,19 @@ impl PySequenceProtocol for Vector2D {
     }
 }
 
-#[pymodule]
-pub fn vector(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<Vector2D>()?;
+
+
+pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
+    #[pymodule]
+    fn vector(_py: Python, m: &PyModule) -> PyResult<()> {
+        m.add_class::<Vector2D>()?;
+        Ok(())
+    }
+
+    m.add_wrapped(wrap_pymodule!(vector))?;
+
+    let sys = PyModule::import(_py, "sys")?;
+    let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
+    sys_modules.set_item("euklid_rs.vector", m.getattr("vector")?)?;
     Ok(())
 }
