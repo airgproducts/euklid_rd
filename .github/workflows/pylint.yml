@@ -14,7 +14,13 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: git checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+      run: | 
+        git checkout HEAD^
+        
     - name: update ubuntu
       run: |
         sudo apt-get update -y
