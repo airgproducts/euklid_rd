@@ -2,7 +2,7 @@
 
 [![maturin](https://github.com/airgproducts/euklid_rs/actions/workflows/maturin.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/maturin.yml)
 [![rsaudit](https://github.com/airgproducts/euklid_rs/actions/workflows/rsaudit.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/rsaudit.yml)
-[![cargo test](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml)
+[![rstest](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml)
 
 The project will replace [euklid](https://github.com/airgproducts/euklid).
 The latest stable version of euklid can be obtained from [![PyPI version](https://badge.fury.io/py/euklid.svg)](https://badge.fury.io/py/euklid).
