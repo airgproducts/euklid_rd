@@ -13,7 +13,7 @@ class TestRustModules(unittest.TestCase):
         self.p1 = Vector2D([0,0])
         self.p2 = Vector2D([1,1])
         self.p3 = Vector2D([2,3])
-        
+
     def test_angle(self):
         '''test_angle of a vector'''
         self.assertEqual(round(self.p2.angle(), 4), 0.7854)
@@ -84,8 +84,9 @@ class TestRustModules(unittest.TestCase):
     def test__truediv__(self):
         '''test__truediv__ devides a vector'''
         self.assertEqual(self.p3 / 2, Vector2D([1, 1.5]))
-    
+
     def test_compare(self):
+        '''test_compare tests the comparison of two vectors'''
         short = self.p2 * 0.8
         long = self.p2 / 0.8
 
@@ -93,7 +94,7 @@ class TestRustModules(unittest.TestCase):
 
         self.assertTrue(short < self.p2)
         self.assertTrue(short <= self.p2)
-        
+
         self.assertTrue(long > self.p2)
         self.assertTrue(long >= self.p2)
 
