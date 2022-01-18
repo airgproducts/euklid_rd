@@ -27,7 +27,7 @@ impl Vector2D {
     /// angle($self)
     /// --
     ///
-    /// This function calculates the angle between x and y from a Vector2D.
+    /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
     pub fn angle(&self) -> f64 {
         f64::atan2(self.v[1], self.v[0])
     }
@@ -44,7 +44,7 @@ impl Vector2D {
     /// cross($self, other)
     /// --
     ///
-    /// This function calculates the cross product of a Vector2D.
+    /// This function calculates the cross product of two Vector2D vectors.
     pub fn cross(&self, other: Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
@@ -69,7 +69,7 @@ impl Vector2D {
     /// length($self)
     /// --
     ///
-    /// This function calculates length of a Vector2D.
+    /// This function calculates the length of a Vector2D.
     pub fn length(&self) -> f64 {
         self.v.norm()
     }
