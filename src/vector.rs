@@ -9,12 +9,52 @@ use pyo3::types::PyDict;
 use pyo3::wrap_pymodule;
 use nalgebra as na;
 
+
+trait Vector {
+    fn copy(&self) -> Self;
+    fn normalized(&self) -> Self;
+    fn __repr__(&self) -> String;
+}
+
+impl Vector for Vector2D {
+    fn copy(&self) -> Self {
+        let v = self.v.clone();
+        Self {v}
+    }
+    fn normalized(&self) -> Self {
+        let v = self.v / self.v.norm();
+        Self {v}
+    }
+    fn __repr__(&self) -> String {
+        format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1])
+    }
+}
+
+impl Vector for Vector3D {
+    fn copy(&self) -> Self {
+        let v = self.v.clone();
+        Self {v}
+    }
+    fn normalized(&self) -> Self {
+        let v = self.v / self.v.norm();
+        Self {v}
+    }
+    fn __repr__(&self) -> String {
+        format!("Vector3D({:.4} {:.4} {:.4})", self.v[0], self.v[1], self.v[2])
+    }
+}
+
 #[pyclass]
 #[derive(Clone, Copy)]
 struct Vector2D {
     v: na::Vector2<f64>,
 }
 
+#[pyclass]
+#[derive(Clone, Copy)]
+struct Vector3D {
+    v: na::Vector3<f64>,
+}
 
 #[pymethods]
 impl Vector2D {
@@ -36,9 +76,8 @@ impl Vector2D {
     /// --
     ///
     /// This function copies a Vector2D object.
-    pub fn copy(&self) -> Self {
-        let v = self.v.clone();
-        Self {v}
+    fn copy(&self) -> Self {
+        Vector::copy(&self)
     }
 
     /// cross($self, other)
@@ -62,8 +101,7 @@ impl Vector2D {
     ///
     /// This function calculates a normalized Vector2D.
     pub fn normalized(&self) -> Self {
-        let v = self.v / self.v.norm();
-        Self {v}
+        Vector::normalized(&self)
     }
 
     /// length($self)
@@ -75,14 +113,38 @@ impl Vector2D {
     }
 }
 
+#[pymethods]
+impl Vector3D {
+    #[new]
+    fn __new__(v: [f64; 3]) -> PyResult<Self> {
+        let v = na::Vector3::new(v[0], v[1], v[2]);
+        Ok(Self {v})
+    }
+
+    /// copy($self)
+    /// --
+    ///
+    /// This function copies a Vector3D object.
+    fn copy(&self) -> Self {
+        Vector::copy(&self)
+    }
+
+    /// normalized($self)
+    /// --
+    ///
+    /// This function calculates a normalized Vector3D.
+    pub fn normalized(&self) -> Self {
+        Vector::normalized(&self)
+    }
+}
+
 #[pyproto]
 impl PyObjectProtocol for Vector2D {
     fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1]))
+        Ok(Vector::__repr__(self))
     }
 
     fn __richcmp__(&'p self, other: PyRef<'p, Vector2D>, op: pyo3::basic::CompareOp) -> PyResult<bool> {
-
         match op {
             pyo3::basic::CompareOp::Eq => Ok(self.v == other.v),
             pyo3::basic::CompareOp::Lt => Ok(self.length() < other.length()),
@@ -93,6 +155,13 @@ impl PyObjectProtocol for Vector2D {
         }
     }
 
+}
+
+#[pyproto]
+impl PyObjectProtocol for Vector3D {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(Vector::__repr__(self))
+    }
 }
 
 #[pyproto]
@@ -144,6 +213,7 @@ pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
     fn vector(_py: Python, m: &PyModule) -> PyResult<()> {
         m.add_class::<Vector2D>()?;
+        m.add_class::<Vector3D>()?;
         Ok(())
     }
 

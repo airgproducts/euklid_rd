@@ -6,6 +6,7 @@
 import math
 import unittest
 from euklid_rs.vector import Vector2D
+from euklid_rs.vector import Vector3D
 
 class TestRustModules(unittest.TestCase):
     '''Test euklid_rs rust module'''
@@ -107,6 +108,20 @@ class TestRustModules(unittest.TestCase):
     def test_docstring(self):
         '''test_docstring returns the docstring of a function'''
         self.assertEqual(self.p2.copy.__doc__, 'This function copies a Vector2D object.')
+
+
+class TestRustModulesVector3D(unittest.TestCase):
+    '''Test euklid_rs Vector3D rust module'''
+    def setUp(self) -> None:
+        self.p1 = Vector3D([0,0,0])
+        self.p2 = Vector3D([1,1,1])
+        self.p3 = Vector3D([2,3,4])
+
+    def test_copy(self):
+        '''test_copy a vector'''
+        self.assertEqual(str(self.p1), 'Vector3D(0.0000 0.0000 0.0000)')
+        result = self.p1.copy()
+        self.assertEqual(str(result), 'Vector3D(0.0000 0.0000 0.0000)')
 
 if __name__ == '__main__':
     unittest.main(exit=False)
