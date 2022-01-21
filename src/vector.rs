@@ -11,38 +11,61 @@ use nalgebra as na;
 
 
 trait Vector {
+    fn angle(&self) -> f64;
     fn copy(&self) -> Self;
+    fn cross(&self, other: Self) -> f64;
+    fn dot(&self, other: &Self) -> f64;
+    fn length(&self) -> f64;
     fn normalized(&self) -> Self;
     fn __repr__(&self) -> String;
 }
 
-impl Vector for Vector2D {
-    fn copy(&self) -> Self {
-        let v = self.v.clone();
-        Self {v}
-    }
-    fn normalized(&self) -> Self {
-        let v = self.v / self.v.norm();
-        Self {v}
-    }
-    fn __repr__(&self) -> String {
-        format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1])
-    }
-}
+macro_rules! vector{($src: ident, $dst: ident) => {
+    impl $src for $dst {
+        fn angle(&self) -> f64 {
+            match self.v.len() {
+                2 => f64::atan2(self.v[1], self.v[0]),
+                _ => panic!("Not Implemented")
+            }
+        }
 
-impl Vector for Vector3D {
-    fn copy(&self) -> Self {
-        let v = self.v.clone();
-        Self {v}
+        fn copy(&self) -> Self {
+            let v = self.v.clone();
+            Self {v}
+        }
+
+        fn dot(&self, other: &Self) -> f64 {
+            self.v.dot(&other.v)
+        }
+
+        fn cross(&self, other: Self) -> f64 {
+            match self.v.len() {
+                2 => self.v[0] * other.v[1] - other.v[0] * self.v[1],
+                _ => panic!("Not Implemented")
+            }
+        }
+
+        fn length(&self) -> f64 {
+            self.v.norm()
+        }
+
+        fn normalized(&self) -> Self {
+            let v = self.v / self.v.norm();
+            Self {v}
+        }
+
+        fn __repr__(&self) -> String {
+            match self.v.len() {
+                2 => format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1]),
+                3 => format!("Vector3D({:.4} {:.4} {:.4})", self.v[0], self.v[1], self.v[2]),
+                _ => panic!("Not implemented")
+            }
+        }
     }
-    fn normalized(&self) -> Self {
-        let v = self.v / self.v.norm();
-        Self {v}
-    }
-    fn __repr__(&self) -> String {
-        format!("Vector3D({:.4} {:.4} {:.4})", self.v[0], self.v[1], self.v[2])
-    }
-}
+}}
+
+vector!(Vector, Vector2D);
+vector!(Vector, Vector3D);
 
 #[pyclass]
 #[derive(Clone, Copy)]
@@ -69,7 +92,7 @@ impl Vector2D {
     ///
     /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
     pub fn angle(&self) -> f64 {
-        f64::atan2(self.v[1], self.v[0])
+        Vector::angle(self)
     }
     
     /// copy($self)
@@ -77,7 +100,7 @@ impl Vector2D {
     ///
     /// This function copies a Vector2D object.
     fn copy(&self) -> Self {
-        Vector::copy(&self)
+        Vector::copy(self)
     }
 
     /// cross($self, other)
@@ -85,7 +108,7 @@ impl Vector2D {
     ///
     /// This function calculates the cross product of two Vector2D vectors.
     pub fn cross(&self, other: Self) -> f64 {
-        self.v[0] * other.v[1] - other.v[0] * self.v[1]
+        Vector::cross(self, other)
     }
 
     /// dot($self, other)
@@ -93,7 +116,7 @@ impl Vector2D {
     ///
     /// This function calculates the dot product of two Vector2D.
     pub fn dot(&self, other: &Self) -> f64 {
-        self.v.dot(&other.v)
+        Vector::dot(self, &other)
     }
 
     /// normalized($self)
@@ -109,7 +132,7 @@ impl Vector2D {
     ///
     /// This function calculates the length of a Vector2D.
     pub fn length(&self) -> f64 {
-        self.v.norm()
+        Vector::length(self)
     }
 }
 
