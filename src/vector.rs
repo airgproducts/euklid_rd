@@ -65,7 +65,7 @@ macro_rules! vector{($src: ident, $dst: ident) => {
             Ok(temp_string)
         }
 
-        fn __richcmp__(&'p self, other: PyRef<'p, Vector2D>, op: pyo3::basic::CompareOp) -> PyResult<bool> {
+        fn __richcmp__(&'p self, other: PyRef<'p, $dst>, op: pyo3::basic::CompareOp) -> PyResult<bool> {
             match op {
                 pyo3::basic::CompareOp::Eq => Ok(self.v == other.v),
                 pyo3::basic::CompareOp::Lt => Ok(self.length() < other.length()),
@@ -204,7 +204,7 @@ impl Vector3D {
     /// angle($self)
     /// --
     ///
-    /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
+    /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector3D.
     fn angle(&self) -> f64 {
         Vector::angle(self)
     }
@@ -212,7 +212,7 @@ impl Vector3D {
     /// copy($self)
     /// --
     ///
-    /// This function copies a Vector2D object.
+    /// This function copies a Vector3D object.
     fn copy(&self) -> Self {
         Vector::copy(self)
     }
@@ -220,7 +220,7 @@ impl Vector3D {
     /// cross($self, other)
     /// --
     ///
-    /// This function calculates the cross product of two Vector2D vectors.
+    /// This function calculates the cross product of two Vector3D vectors.
     fn cross(&self, other: Self) -> f64 {
         Vector::cross(self, other)
     }
@@ -228,7 +228,7 @@ impl Vector3D {
     /// dot($self, other)
     /// --
     ///
-    /// This function calculates the dot product of two Vector2D.
+    /// This function calculates the dot product of two Vector3D.
     fn dot(&self, other: &Self) -> f64 {
         Vector::dot(self, &other)
     }
@@ -236,7 +236,7 @@ impl Vector3D {
     /// normalized($self)
     /// --
     ///
-    /// This function calculates a normalized Vector2D.
+    /// This function calculates a normalized Vector3D.
     fn normalized(&self) -> Self {
         Vector::normalized(&self)
     }
@@ -244,7 +244,7 @@ impl Vector3D {
     /// length($self)
     /// --
     ///
-    /// This function calculates the length of a Vector2D.
+    /// This function calculates the length of a Vector3D.
     pub fn length(&self) -> f64 {
         Vector::length(self)
     }
