@@ -13,7 +13,6 @@ use nalgebra as na;
 trait Vector {
     fn angle(&self) -> f64;
     fn copy(&self) -> Self;
-    fn cross(&self, other: Self) -> f64;
     fn dot(&self, other: &Self) -> f64;
     fn length(&self) -> f64;
     fn normalized(&self) -> Self;
@@ -35,13 +34,6 @@ macro_rules! vector{($src: ident, $dst: ident) => {
 
         fn dot(&self, other: &Self) -> f64 {
             self.v.dot(&other.v)
-        }
-
-        fn cross(&self, other: Self) -> f64 {
-            match self.v.len() {
-                2 => self.v[0] * other.v[1] - other.v[0] * self.v[1],
-                _ => panic!("Not Implemented")
-            }
         }
 
         fn length(&self) -> f64 {
@@ -109,8 +101,10 @@ macro_rules! vector{($src: ident, $dst: ident) => {
         }
 
         fn __setitem__(&mut self, idx: isize, value: f64) -> PyResult<()> {
-            match idx {
-                0 | 1 => {
+            struct S(usize, isize);
+            let _v_len = self.v.len();
+            match S(_v_len, idx) {
+                S(2, 0 ..= 2) | S(3, 0 ..= 3) => {
                     let n_us = usize::try_from(idx).unwrap();
                     self.v[n_us] = value;
                     Ok(())
@@ -165,7 +159,7 @@ impl Vector2D {
     ///
     /// This function calculates the cross product of two Vector2D vectors.
     fn cross(&self, other: Self) -> f64 {
-        Vector::cross(self, other)
+        self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
 
     /// dot($self, other)
@@ -221,8 +215,9 @@ impl Vector3D {
     /// --
     ///
     /// This function calculates the cross product of two Vector3D vectors.
-    fn cross(&self, other: Self) -> f64 {
-        Vector::cross(self, other)
+    fn cross(&self, other: Self) -> Self {
+        let v = self.v.cross(&other.v);
+        Self { v }
     }
 
     /// dot($self, other)
