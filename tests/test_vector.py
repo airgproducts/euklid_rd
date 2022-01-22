@@ -104,5 +104,9 @@ class TestRustModules(unittest.TestCase):
         self.assertFalse(long < self.p2)
         self.assertFalse(long <= self.p2)
 
+    def test_docstring(self):
+        '''test_docstring returns the docstring of a function'''
+        self.assertEqual(self.p2.copy.__doc__, 'This function copies a Vector2D object.')
+
 if __name__ == '__main__':
     unittest.main(exit=False)
