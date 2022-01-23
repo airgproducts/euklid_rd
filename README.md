@@ -2,6 +2,7 @@
 
 [![maturin](https://github.com/airgproducts/euklid_rs/actions/workflows/maturin.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/maturin.yml)
 [![rsaudit](https://github.com/airgproducts/euklid_rs/actions/workflows/rsaudit.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/rsaudit.yml)
+[![rsfmt](https://github.com/airgproducts/euklid_rs/actions/workflows/rsformat.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/rsformat.yml)
 [![rstest](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml/badge.svg?branch=main)](https://github.com/airgproducts/euklid_rs/actions/workflows/rstest.yml)
 
 The project will replace [euklid](https://github.com/airgproducts/euklid).
@@ -30,7 +31,15 @@ maturin develop
 
 # Run python tests with pytest
 pytest
+```
 
+### Code-Style
+```
+# Run pylint for prettier tests/*
+pylint tests/*
+
+# Run cargo fmt for prettier rust src files
+cargo fmt 
 ```
 
 ## Build Setup
