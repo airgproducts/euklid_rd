@@ -10,22 +10,28 @@ use pyo3::wrap_pymodule;
 use nalgebra as na;
 
 
+#[pyclass]
+#[derive(Clone, Copy)]
+struct Vector2D {
+    v: na::Vector2<f64>,
+}
+
+#[pyclass]
+#[derive(Clone, Copy)]
+struct Vector3D {
+    v: na::Vector3<f64>,
+}
+
+
 trait Vector {
-    fn angle(&self) -> f64;
     fn copy(&self) -> Self;
     fn dot(&self, other: &Self) -> f64;
     fn length(&self) -> f64;
     fn normalized(&self) -> Self;
 }
 
-macro_rules! vector{($src: ident, $dst: ident) => {
-    impl $src for $dst {
-        fn angle(&self) -> f64 {
-            match self.v.len() {
-                2 => f64::atan2(self.v[1], self.v[0]),
-                _ => panic!("Not Implemented")
-            }
-        }
+macro_rules! pyvector{($dst: ident) => {
+    impl Vector for $dst {
 
         fn copy(&self) -> Self {
             let v = self.v.clone();
@@ -44,6 +50,44 @@ macro_rules! vector{($src: ident, $dst: ident) => {
             let v = self.v / self.v.norm();
             Self {v}
         }
+    }
+
+    #[pymethods]
+    impl $dst {
+        /// copy($self)
+        /// --
+        ///
+        /// This function copies a Vector object.
+        fn copy(&self) -> Self {
+            Vector::copy(self)
+        }
+
+
+        /// dot($self, other)
+        /// --
+        ///
+        /// This function calculates the dot product of two Vector3D.
+        fn dot(&self, other: &Self) -> f64 {
+            Vector::dot(self, &other)
+        }
+
+        /// normalized($self)
+        /// --
+        ///
+        /// This function calculates a normalized Vector2D.
+        fn normalized(&self) -> Self {
+            Vector::normalized(&self)
+        }
+
+
+        /// length($self)
+        /// --
+        ///
+        /// This function calculates the length of a Vector3D.
+        pub fn length(&self) -> f64 {
+            Vector::length(self)
+        }
+
     }
 
     #[pyproto]
@@ -115,20 +159,9 @@ macro_rules! vector{($src: ident, $dst: ident) => {
     }
 }}
 
-vector!(Vector, Vector2D);
-vector!(Vector, Vector3D);
+pyvector!(Vector2D);
+pyvector!(Vector3D);
 
-#[pyclass]
-#[derive(Clone, Copy)]
-struct Vector2D {
-    v: na::Vector2<f64>,
-}
-
-#[pyclass]
-#[derive(Clone, Copy)]
-struct Vector3D {
-    v: na::Vector3<f64>,
-}
 
 #[pymethods]
 impl Vector2D {
@@ -143,47 +176,16 @@ impl Vector2D {
     ///
     /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
     fn angle(&self) -> f64 {
-        Vector::angle(self)
+        f64::atan2(self.v[1], self.v[0])
     }
-    
-    /// copy($self)
-    /// --
-    ///
-    /// This function copies a Vector2D object.
-    fn copy(&self) -> Self {
-        Vector::copy(self)
-    }
+
 
     /// cross($self, other)
     /// --
     ///
     /// This function calculates the cross product of two Vector2D vectors.
-    fn cross(&self, other: Self) -> f64 {
+    fn cross(&self, other: &Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
-    }
-
-    /// dot($self, other)
-    /// --
-    ///
-    /// This function calculates the dot product of two Vector2D.
-    fn dot(&self, other: &Self) -> f64 {
-        Vector::dot(self, &other)
-    }
-
-    /// normalized($self)
-    /// --
-    ///
-    /// This function calculates a normalized Vector2D.
-    fn normalized(&self) -> Self {
-        Vector::normalized(&self)
-    }
-
-    /// length($self)
-    /// --
-    ///
-    /// This function calculates the length of a Vector2D.
-    fn length(&self) -> f64 {
-        Vector::length(self)
     }
 }
 
@@ -195,54 +197,15 @@ impl Vector3D {
         Ok(Self {v})
     }
 
-    /// angle($self)
-    /// --
-    ///
-    /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector3D.
-    fn angle(&self) -> f64 {
-        Vector::angle(self)
-    }
-    
-    /// copy($self)
-    /// --
-    ///
-    /// This function copies a Vector3D object.
-    fn copy(&self) -> Self {
-        Vector::copy(self)
-    }
-
     /// cross($self, other)
     /// --
     ///
     /// This function calculates the cross product of two Vector3D vectors.
-    fn cross(&self, other: Self) -> Self {
+    fn cross(&self, other: &Self) -> Self {
         let v = self.v.cross(&other.v);
         Self { v }
     }
 
-    /// dot($self, other)
-    /// --
-    ///
-    /// This function calculates the dot product of two Vector3D.
-    fn dot(&self, other: &Self) -> f64 {
-        Vector::dot(self, &other)
-    }
-
-    /// normalized($self)
-    /// --
-    ///
-    /// This function calculates a normalized Vector3D.
-    fn normalized(&self) -> Self {
-        Vector::normalized(&self)
-    }
-
-    /// length($self)
-    /// --
-    ///
-    /// This function calculates the length of a Vector3D.
-    pub fn length(&self) -> f64 {
-        Vector::length(self)
-    }
 }
 
 pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {

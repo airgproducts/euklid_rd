@@ -11,4 +11,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 nalgebra = "*"
-pyo3 = { version = "0.15.1", features = ["extension-module"] }
+pyo3 = { version = "0.15.1", features = ["extension-module", "multiple-pymethods"] }

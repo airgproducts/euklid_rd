@@ -192,8 +192,7 @@ class TestRustModules(unittest.TestCase):
 
     def test_docstring(self):
         '''test_docstring returns the docstring of a function'''
-        self.assertEqual(self.p2d_2.copy.__doc__, 'This function copies a Vector2D object.')
-        self.assertEqual(self.p3d_2.copy.__doc__, 'This function copies a Vector3D object.')
+        self.assertEqual(self.p2d_2.copy.__doc__, 'This function copies a Vector object.')
 
 
 if __name__ == '__main__':
