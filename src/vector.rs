@@ -137,19 +137,20 @@ macro_rules! pyvector {
         #[pyproto]
         impl PySequenceProtocol for $dst {
             fn __getitem__(&self, idx: isize) -> PyResult<f64> {
-                match idx {
-                    0 | 1 => {
-                        let n_us = usize::try_from(idx).unwrap();
-                        Ok(self.v[n_us])
+                match (usize::try_from(idx)) {
+                    Ok(index) => {
+                        if index < Self::DIMENSIONS {
+                            return Ok(self.v[index]);
+                        }
                     }
-                    _ => Err(PyIndexError::new_err("index out of range")),
+                    Err(_) => {}
                 }
+                return Err(PyIndexError::new_err("index out of range"));
             }
 
             fn __setitem__(&mut self, idx: isize, value: f64) -> PyResult<()> {
                 struct S(usize, isize);
-                let _v_len = self.v.len();
-                match S(_v_len, idx) {
+                match S(Self::DIMENSIONS, idx) {
                     S(2, 0..=2) | S(3, 0..=3) => {
                         let n_us = usize::try_from(idx).unwrap();
                         self.v[n_us] = value;
@@ -167,6 +168,7 @@ pyvector!(Vector3D);
 
 #[pymethods]
 impl Vector2D {
+    const DIMENSIONS: usize = 2;
     #[new]
     fn __new__(v: [f64; 2]) -> PyResult<Self> {
         let v = na::Vector2::new(v[0], v[1]);
@@ -192,6 +194,7 @@ impl Vector2D {
 
 #[pymethods]
 impl Vector3D {
+    const DIMENSIONS: usize = 3;
     #[new]
     fn __new__(v: [f64; 3]) -> PyResult<Self> {
         let v = na::Vector3::new(v[0], v[1], v[2]);

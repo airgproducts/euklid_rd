@@ -127,10 +127,10 @@ class TestRustModules(unittest.TestCase):
         self.p2d_1[0] = 2
         self.assertEqual(self.p2d_1[0], 2.)
 
-        # Vector3D
-        # TODO Idx > 1 leads to a 'IndexError: index out of range' error
         self.p3d_1[1] = 3
         self.assertEqual(self.p3d_1[1], 3.)
+        self.p3d_1[2] = 3
+        self.assertEqual(self.p3d_1[2], 3.)
 
     def test__add__(self):
         '''test__add__ tries to add two vectors'''
