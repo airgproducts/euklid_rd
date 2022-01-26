@@ -63,7 +63,7 @@ macro_rules! pyvector {
             /// dot($self, other)
             /// --
             ///
-            /// This function calculates the dot product of two Vector3D.
+            /// This function calculates the dot product of two Vectors.
             fn dot(&self, other: &Self) -> f64 {
                 Vector::dot(self, &other)
             }
@@ -71,7 +71,7 @@ macro_rules! pyvector {
             /// normalized($self)
             /// --
             ///
-            /// This function calculates a normalized Vector2D.
+            /// This function calculates a normalized Vector.
             fn normalized(&self) -> Self {
                 Vector::normalized(&self)
             }
@@ -79,7 +79,7 @@ macro_rules! pyvector {
             /// length($self)
             /// --
             ///
-            /// This function calculates the length of a Vector3D.
+            /// This function calculates the length of a Vector.
             pub fn length(&self) -> f64 {
                 Vector::length(self)
             }
