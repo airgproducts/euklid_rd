@@ -27,3 +27,4 @@ jobs:
         continue-on-error: false
         with:
           command: test
+          args: --no-default-features
