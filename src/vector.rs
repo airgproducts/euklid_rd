@@ -29,7 +29,8 @@ trait Vector {
 }
 
 macro_rules! pyvector {
-    ($dst: ident) => {
+    ($dst: ty) => {
+
         impl Vector for $dst {
             fn copy(&self) -> Self {
                 let v = self.v.clone();
@@ -55,7 +56,8 @@ macro_rules! pyvector {
             /// copy($self)
             /// --
             ///
-            /// This function copies a Vector object.
+            #[doc = concat!("copy(self: ", stringify!($dst), ") -> ", stringify!($dst))]
+            #[doc = "make a copy"]
             fn copy(&self) -> Self {
                 Vector::copy(self)
             }
@@ -63,15 +65,18 @@ macro_rules! pyvector {
             /// dot($self, other)
             /// --
             ///
-            /// This function calculates the dot product of two Vectors.
+            #[doc = concat!("dot(self: ", stringify!($dst), ", other: ", stringify!($dst), ") -> float")]
+            #[doc = "calculate the dot product of two Vectors"]
             fn dot(&self, other: &Self) -> f64 {
                 Vector::dot(self, &other)
             }
 
+
             /// normalized($self)
             /// --
             ///
-            /// This function calculates a normalized Vector.
+            #[doc = concat!("normalized(self: ", stringify!($dst), ") -> ", stringify!($dst))]
+            #[doc = "get a unit-sized vector"]
             fn normalized(&self) -> Self {
                 Vector::normalized(&self)
             }
@@ -79,7 +84,8 @@ macro_rules! pyvector {
             /// length($self)
             /// --
             ///
-            /// This function calculates the length of a Vector.
+            #[doc = concat!("length(self: ", stringify!($dst), ") -> float")]
+            #[doc = "get the length of a Vector"]
             pub fn length(&self) -> f64 {
                 Vector::length(self)
             }
@@ -178,7 +184,8 @@ impl Vector2D {
     /// angle($self)
     /// --
     ///
-    /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
+    #[doc = concat!("angle(self: Vector2D) -> float")]
+    #[doc = "calculate the angle angle relative to the x-axis and y-axis from a Vector2D"]
     fn angle(&self) -> f64 {
         f64::atan2(self.v[1], self.v[0])
     }
@@ -186,7 +193,8 @@ impl Vector2D {
     /// cross($self, other)
     /// --
     ///
-    /// This function calculates the cross product of two Vector2D vectors.
+    #[doc = concat!("cross(self: Vector2D, other: Vector2D) -> float")]
+    #[doc = "calculate the cross product of two Vector2D vectors"]
     fn cross(&self, other: &Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
@@ -204,7 +212,8 @@ impl Vector3D {
     /// cross($self, other)
     /// --
     ///
-    /// This function calculates the cross product of two Vector3D vectors.
+    #[doc = concat!("cross(self: Vector3D, other: Vector3D) -> Vector3D")]
+    #[doc = "calculate the cross product of two Vector3D vectors"]
     fn cross(&self, other: &Self) -> Self {
         let v = self.v.cross(&other.v);
         Self { v }
