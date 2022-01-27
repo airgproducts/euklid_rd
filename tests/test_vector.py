@@ -42,7 +42,9 @@ class TestRustModules(unittest.TestCase):
 
     def test_cross(self):
         '''test_cross product of a vector'''
-        # # TODO https://github.com/airgproducts/euklid/blob/master/src/vector/vector.cpp correct implementation? https://www.mathsisfun.com/algebra/vectors-cross-product.html?
+        # # TODO https://github.com/airgproducts/euklid/blob/master/src/vector/vector.cpp
+        # correct implementation?
+        # https://www.mathsisfun.com/algebra/vectors-cross-product.html?
         # Vector2D
         self.assertEqual(round(self.p2d_2.cross(self.p2d_3), 4), 1.)
         self.assertEqual(round(self.p2d_3.cross(self.p2d_2), 4), -1)
@@ -127,10 +129,10 @@ class TestRustModules(unittest.TestCase):
         self.p2d_1[0] = 2
         self.assertEqual(self.p2d_1[0], 2.)
 
-        # Vector3D
-        # TODO Idx > 1 leads to a 'IndexError: index out of range' error
         self.p3d_1[1] = 3
         self.assertEqual(self.p3d_1[1], 3.)
+        self.p3d_1[2] = 3
+        self.assertEqual(self.p3d_1[2], 3.)
 
     def test__add__(self):
         '''test__add__ tries to add two vectors'''
@@ -192,8 +194,7 @@ class TestRustModules(unittest.TestCase):
 
     def test_docstring(self):
         '''test_docstring returns the docstring of a function'''
-        self.assertEqual(self.p2d_2.copy.__doc__, 'This function copies a Vector2D object.')
-        self.assertEqual(self.p3d_2.copy.__doc__, 'This function copies a Vector3D object.')
+        self.assertEqual(self.p2d_2.copy.__doc__, 'This function copies a Vector object.')
 
 
 if __name__ == '__main__':
