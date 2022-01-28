@@ -26,8 +26,6 @@ class TestRustModules(unittest.TestCase):
         self.assertEqual(round(self.p2d_2.angle(), 4), 0.7854)
         self.assertEqual(round(self.p2d_3.angle(), 4), 0.9828)
 
-        # TODO Vector3D is needed?
-
     def test_copy(self):
         '''test_copy a vector'''
         # Vector2D
@@ -42,10 +40,6 @@ class TestRustModules(unittest.TestCase):
 
     def test_cross(self):
         '''test_cross product of a vector'''
-        # # TODO https://github.com/airgproducts/euklid/blob/master/src/vector/vector.cpp
-        # correct implementation?
-        # https://www.mathsisfun.com/algebra/vectors-cross-product.html?
-        # Vector2D
         self.assertEqual(round(self.p2d_2.cross(self.p2d_3), 4), 1.)
         self.assertEqual(round(self.p2d_3.cross(self.p2d_2), 4), -1)
 
