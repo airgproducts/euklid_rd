@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# coding: utf-8
+
+"""Unittest for vectors from the rust module euklid_rs"""
+
 import imp
 import unittest
 import math
