@@ -3,22 +3,19 @@ use pyo3::class::basic::PyObjectProtocol;
 use pyo3::class::number::PyNumberProtocol;
 use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::exceptions::PyIndexError;
-use pyo3::exceptions::PyNotImplementedError;
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
-use pyo3::wrap_pymodule;
 use std::convert::TryFrom;
 
 #[pyclass]
 #[derive(Clone, Copy)]
-struct Vector2D {
-    v: na::Vector2<f64>,
+pub struct Vector2D {
+    pub v: na::Vector2<f64>,
 }
 
 #[pyclass]
 #[derive(Clone, Copy)]
-struct Vector3D {
-    v: na::Vector3<f64>,
+pub struct Vector3D {
+    pub v: na::Vector3<f64>,
 }
 
 trait Vector {
@@ -112,11 +109,11 @@ macro_rules! pyvector {
             ) -> PyResult<bool> {
                 match op {
                     pyo3::basic::CompareOp::Eq => Ok(self.v == other.v),
+                    pyo3::basic::CompareOp::Ne => Ok(self.v != other.v),
                     pyo3::basic::CompareOp::Lt => Ok(self.length() < other.length()),
                     pyo3::basic::CompareOp::Le => Ok(self.length() <= other.length()),
                     pyo3::basic::CompareOp::Gt => Ok(self.length() > other.length()),
                     pyo3::basic::CompareOp::Ge => Ok(self.length() >= other.length()),
-                    _ => Err(PyNotImplementedError::new_err("Not Implemented")),
                 }
             }
         }
@@ -218,20 +215,4 @@ impl Vector3D {
         let v = self.v.cross(&other.v);
         Self { v }
     }
-}
-
-pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
-    #[pymodule]
-    fn vector(_py: Python, m: &PyModule) -> PyResult<()> {
-        m.add_class::<Vector2D>()?;
-        m.add_class::<Vector3D>()?;
-        Ok(())
-    }
-
-    m.add_wrapped(wrap_pymodule!(vector))?;
-
-    let sys = PyModule::import(_py, "sys")?;
-    let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
-    sys_modules.set_item("euklid_rs.vector", m.getattr("vector")?)?;
-    Ok(())
 }
