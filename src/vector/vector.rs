@@ -181,8 +181,8 @@ impl Vector2D {
     /// angle($self)
     /// --
     ///
-    #[doc = concat!("angle(self: Vector2D) -> float")]
-    #[doc = "calculate the angle angle relative to the x-axis and y-axis from a Vector2D"]
+    /// angle(self: Vector2D) -> float
+    /// calculate the angle angle relative to the x-axis and y-axis from a Vector2D
     fn angle(&self) -> f64 {
         f64::atan2(self.v[1], self.v[0])
     }
@@ -190,8 +190,8 @@ impl Vector2D {
     /// cross($self, other)
     /// --
     ///
-    #[doc = concat!("cross(self: Vector2D, other: Vector2D) -> float")]
-    #[doc = "calculate the cross product of two Vector2D vectors"]
+    /// cross(self: Vector2D, other: Vector2D) -> float
+    /// calculate the cross product of two Vector2D vectors
     fn cross(&self, other: &Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
@@ -209,8 +209,8 @@ impl Vector3D {
     /// cross($self, other)
     /// --
     ///
-    #[doc = concat!("cross(self: Vector3D, other: Vector3D) -> Vector3D")]
-    #[doc = "calculate the cross product of two Vector3D vectors"]
+    /// cross(self: Vector3D, other: Vector3D) -> Vector3D
+    /// calculate the cross product of two Vector3D vectors
     fn cross(&self, other: &Self) -> Self {
         let v = self.v.cross(&other.v);
         Self { v }
