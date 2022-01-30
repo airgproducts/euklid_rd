@@ -55,7 +55,7 @@ macro_rules! pyvector {
             ///
             #[doc = concat!("copy(self: ", stringify!($dst), ") -> ", stringify!($dst))]
             #[doc = "make a copy"]
-            fn copy(&self) -> Self {
+            pub fn copy(&self) -> Self {
                 Vector::copy(self)
             }
 
@@ -64,7 +64,7 @@ macro_rules! pyvector {
             ///
             #[doc = concat!("dot(self: ", stringify!($dst), ", other: ", stringify!($dst), ") -> float")]
             #[doc = "calculate the dot product of two Vectors"]
-            fn dot(&self, other: &Self) -> f64 {
+            pub fn dot(&self, other: &Self) -> f64 {
                 Vector::dot(self, &other)
             }
 
@@ -74,7 +74,7 @@ macro_rules! pyvector {
             ///
             #[doc = concat!("normalized(self: ", stringify!($dst), ") -> ", stringify!($dst))]
             #[doc = "get a unit-sized vector"]
-            fn normalized(&self) -> Self {
+            pub fn normalized(&self) -> Self {
                 Vector::normalized(&self)
             }
 
