@@ -8,8 +8,8 @@ import math
 from euklid_rs.vector import Vector3D, Transformation
 
 
-class TestRustModules(unittest.TestCase):
-    '''Test euklid_rs rust module'''
+class TestVectorTransFormFunctions(unittest.TestCase):
+    """Test euklid_rs.vector.Transformation rust module"""
     def setUp(self) -> None:
         # Vector3D
         self.p3d_1 = Vector3D([0,0,0])

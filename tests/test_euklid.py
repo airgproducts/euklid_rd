@@ -63,7 +63,7 @@ class TestVectorFunctions(unittest.TestCase):
 
 
 class TestVectorTransformFunctions(unittest.TestCase):
-    """Test euklid_rs against euklid"""
+    """Test euklid_rs.vector.Transformation against euklid.vector.Transformation"""
 
     def setUp(self) -> None:
         self.c_p3d_1 = euklid.vector.Vector3D([3, 4, 5])

@@ -8,8 +8,8 @@ import unittest
 from euklid_rs.vector import Vector2D
 from euklid_rs.vector import Vector3D
 
-class TestRustModules(unittest.TestCase):
-    '''Test euklid_rs rust module'''
+class TestVectorFunctions(unittest.TestCase):
+    """Test euklid_rs.vector rust module"""
     def setUp(self) -> None:
         # Vector2D
         self.p2d_1 = Vector2D([0,0])
