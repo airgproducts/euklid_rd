@@ -116,7 +116,6 @@ class TestRustModules(unittest.TestCase):
         self.assertRaises(IndexError, lambda: self.p3d_1[3])
         self.assertRaises(IndexError, lambda: self.p3d_1[-1])
 
-    @unittest.skip("invalid test")
     def test__setitem__(self):
         '''test__setitem__ sets a value at a position'''
         # Vector2D
