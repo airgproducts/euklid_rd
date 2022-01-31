@@ -35,16 +35,10 @@ class TestRustModules(unittest.TestCase):
         """Check if rotation works"""
         axis = Vector3D([1,1,0])
         rotation = Transformation.rotation(math.pi, axis)
-
         self.assertEqual(self.p3d_1, rotation.apply(self.p3d_1))
-
-        vec1 = Vector3D([0, 1., 1.])
-        vec2 = Vector3D([1, 0., -1.])
-        self.assert_almost_equal_vec(rotation.apply(vec1), vec2)
+        assert str(rotation.apply(Vector3D([1, 0.0, -1.0]))) == str(Vector3D([0, 1.0, 1.0]))
 
     def test_scale(self):
         """Check if scaling works"""
-        scale = 0.5
         transform = Transformation.scale(0.5)
-
-        self.assertEqual(self.p3d_2.length()*scale, transform.apply(self.p3d_2).length())
+        assert transform.apply(self.p3d_2).length() == self.p3d_2.length() * 0.5
