@@ -187,7 +187,7 @@ class TestVectorFunctions(unittest.TestCase):
 
     def test_docstring(self):
         '''test_docstring returns the docstring of a function'''
-        self.assertEqual(self.p2d_2.copy.__doc__, 'This function copies a Vector object.')
+        self.assertTrue("copy" in self.p2d_2.copy.__doc__)
 
 
 if __name__ == '__main__':
