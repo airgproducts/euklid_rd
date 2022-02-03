@@ -8,8 +8,8 @@ import unittest
 from euklid_rs.vector import Vector2D
 from euklid_rs.vector import Vector3D
 
-class TestRustModules(unittest.TestCase):
-    '''Test euklid_rs rust module'''
+class TestVectorFunctions(unittest.TestCase):
+    """Test euklid_rs.vector rust module"""
     def setUp(self) -> None:
         # Vector2D
         self.p2d_1 = Vector2D([0,0])
@@ -116,7 +116,6 @@ class TestRustModules(unittest.TestCase):
         self.assertRaises(IndexError, lambda: self.p3d_1[3])
         self.assertRaises(IndexError, lambda: self.p3d_1[-1])
 
-    @unittest.skip("invalid test")
     def test__setitem__(self):
         '''test__setitem__ sets a value at a position'''
         # Vector2D
