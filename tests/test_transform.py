@@ -7,22 +7,16 @@ import unittest
 import math
 from euklid_rs.vector import Vector3D, Transformation
 
+from .base import TestCase
 
-class TestVectorTransFormFunctions(unittest.TestCase):
+
+class TestVectorTransFormFunctions(TestCase):
     """Test euklid_rs.vector.Transformation rust module"""
     def setUp(self) -> None:
         # Vector3D
         self.p3d_1 = Vector3D([0,0,0])
         self.p3d_2 = Vector3D([1,1,1])
         self.p3d_3 = Vector3D([2,3,4])
-
-    def assert_almost_equal_vec(self, vec_1, vec_2):
-        """Check equality of two vectors"""
-        try:
-            for i in range(3):
-                self.assertAlmostEqual(vec_1[i], vec_2[i])
-        except AssertionError as exception:
-            raise AssertionError(f"{vec_1} != {vec_2}") from exception
 
     def test_translation(self):
         """Check if translation works"""

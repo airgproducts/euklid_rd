@@ -1,22 +1,30 @@
 use crate::vector::transform;
 use crate::vector::vector;
 use nalgebra as na;
-use pyo3::class::basic::PyObjectProtocol;
-use pyo3::exceptions::PyAttributeError;
 use pyo3::prelude::*;
+
 #[pyclass]
 #[derive(Clone, Copy)]
 pub struct Plane {
+    #[pyo3(get, set)]
     pub p0: vector::Vector3D,
+
+    #[pyo3(get, set)]
     pub x_vector: vector::Vector3D,
+
+    #[pyo3(get, set)]
     pub y_vector: vector::Vector3D,
+
+    #[pyo3(get, set)]
     pub normvector: vector::Vector3D,
+
+    transformation: transform::Transformation,
 }
 
 #[pymethods]
 impl Plane {
     #[new]
-    fn __new__(p0: vector::Vector3D, v1: vector::Vector3D, v2: vector::Vector3D) -> PyResult<Self> {
+    fn __new__(p0: vector::Vector3D, v1: vector::Vector3D, v2: vector::Vector3D) -> Self {
         let n = v1.cross(&v2);
         let mut transformation = transform::Transformation {
             matrix: na::Matrix4::<f64>::new(
@@ -29,9 +37,10 @@ impl Plane {
             transformation.matrix[(i, 1)] = v2.v[i]; // y
             transformation.matrix[(i, 2)] = n.v[i]; // z
 
-            transformation.matrix[(3, i)] = p0.v[i];
+            transformation.matrix[(i, 3)] = p0.v[i];
         }
-        Ok(Plane::setup(transformation))
+
+        Plane::setup(transformation)
     }
 
     #[staticmethod]
@@ -39,6 +48,7 @@ impl Plane {
         let p0 = transformation.apply(&vector::Vector3D {
             v: na::Vector3::<f64>::new(0., 0., 0.),
         });
+
         let x_vector = vector::Vector3D {
             v: transformation
                 .apply(&vector::Vector3D {
@@ -68,6 +78,7 @@ impl Plane {
             x_vector,
             y_vector,
             normvector,
+            transformation,
         }
     }
 
@@ -80,18 +91,11 @@ impl Plane {
         let v = na::Vector2::new(x, y);
         vector::Vector2D { v }
     }
-}
 
-#[pyproto]
-impl PyObjectProtocol for Plane {
-    fn __getattr__(&self, name: &str) -> PyResult<String> {
-        let temp_string = match name {
-            "p0" => self.p0.__repr__(),
-            "x_vector" => self.x_vector.__repr__(),
-            "y_vector" => self.y_vector.__repr__(),
-            "normvector" => self.normvector.__repr__(),
-            _ => Err(PyAttributeError::new_err("attribute does not exits")),
-        };
-        Ok(temp_string.unwrap())
+    fn align(&self, vec: vector::Vector2D) -> vector::Vector3D {
+        let v = na::Vector3::<f64>::new(vec.v[0], vec.v[1], 0.);
+        let vec_3d = vector::Vector3D { v };
+
+        self.transformation.apply(&vec_3d)
     }
 }
