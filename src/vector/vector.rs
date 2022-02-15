@@ -5,6 +5,7 @@ use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 use std::convert::TryFrom;
+use std::ops;
 
 #[pyclass]
 #[derive(Clone, Copy)]
@@ -43,6 +44,34 @@ macro_rules! pyvector {
 
             fn normalized(&self) -> Self {
                 let v = self.v / self.v.norm();
+                Self { v }
+            }
+        }
+
+        impl ops::Add<&$dst> for $dst {
+            type Output = $dst;
+
+            fn add(self, _rhs: &$dst) -> $dst {
+                let v = self.v + _rhs.v;
+
+                Self { v }
+            }
+        }
+        impl ops::Sub<&$dst> for $dst {
+            type Output = $dst;
+
+            fn sub(self, _rhs: &$dst) -> $dst {
+                let v = self.v - _rhs.v;
+
+                Self { v }
+            }
+        }
+        impl ops::Mul<f64> for $dst {
+            type Output = $dst;
+
+            fn mul(self, _rhs: f64) -> $dst {
+                let v = self.v * _rhs;
+
                 Self { v }
             }
         }
@@ -165,9 +194,9 @@ pyvector!(Vector3D);
 
 #[pymethods]
 impl Vector2D {
-    const DIMENSIONS: usize = 2;
+    pub const DIMENSIONS: usize = 2;
     #[new]
-    fn __new__(v: [f64; 2]) -> PyResult<Self> {
+    pub fn __new__(v: [f64; 2]) -> PyResult<Self> {
         let v = na::Vector2::new(v[0], v[1]);
         Ok(Self { v })
     }
@@ -191,9 +220,9 @@ impl Vector2D {
 
 #[pymethods]
 impl Vector3D {
-    const DIMENSIONS: usize = 3;
+    pub const DIMENSIONS: usize = 3;
     #[new]
-    fn __new__(v: [f64; 3]) -> PyResult<Self> {
+    pub fn __new__(v: [f64; 3]) -> PyResult<Self> {
         let v = na::Vector3::new(v[0], v[1], v[2]);
         Ok(Self { v })
     }

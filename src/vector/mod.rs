@@ -2,8 +2,8 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::wrap_pymodule;
 
-mod transform;
-mod vector;
+pub mod transform;
+pub mod vector;
 
 pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
