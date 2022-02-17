@@ -1,3 +1,4 @@
+use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::prelude::*;
 
 use crate::vector::vector::*;
@@ -126,7 +127,7 @@ macro_rules! define_polyline {
                 let mut result = Vec::new();
                 result.reserve(self.nodes.len() - 1);
 
-                for i in 0..self.nodes.len() {
+                for i in 0..self.nodes.len() - 1 {
                     result.push(self.nodes[i + 1] - &self.nodes[i]);
                 }
 
@@ -162,6 +163,93 @@ macro_rules! define_polyline {
                 );
 
                 result
+            }
+
+            fn get_length(&self) -> f64 {
+                let mut result: f64 = 0.;
+
+                for segment in &self.get_segments() {
+                    result += segment.length();
+                }
+
+                result
+            }
+
+            fn walk(&self, start: f64, distance: f64) -> f64 {
+                if f64::abs(distance) < 1e-8 {
+                    return start;
+                }
+
+                let direction: isize = if (distance < 0.) { -1 } else { 1 };
+
+                let mut next_value = if direction > 0 {
+                    start.floor() as isize
+                } else {
+                    start.ceil() as isize
+                };
+
+                if (f64::abs(start - next_value as f64) < 1e-5) {
+                    next_value += direction;
+                }
+
+                let mut amount = f64::abs(distance);
+
+                let mut current_segment_length =
+                    (self.get(next_value as f64) - &self.get(start)).length();
+                amount -= current_segment_length;
+
+                let mut last_value = start;
+
+                while (amount > 0.) {
+                    if next_value > isize::try_from(self.nodes.len()).unwrap() && direction > 0 {
+                        break;
+                    }
+                    if (next_value < 0 && direction < 0) {
+                        break;
+                    }
+
+                    last_value = next_value as f64;
+                    next_value += direction;
+
+                    current_segment_length =
+                        (self.get(next_value as f64) - &self.get(last_value)).length();
+
+                    amount -= current_segment_length;
+                }
+
+                return next_value as f64
+                    + (direction as f64 * amount) * f64::abs(next_value as f64 - last_value)
+                        / current_segment_length;
+            }
+
+            fn resample(&self, num_points: usize) -> Self {
+                let mut nodes = Vec::new();
+                let mut ik = 0.;
+                let distance = self.get_length() / ((num_points - 1) as f64);
+
+                nodes.push(self.get(ik));
+
+                for _i in 0..num_points - 2 {
+                    ik = self.walk(ik, distance);
+                    nodes.push(self.get(ik));
+                }
+
+                nodes.push(self.nodes.last().unwrap().copy());
+
+                Self { nodes }
+            }
+        }
+
+        #[pyproto]
+        impl PySequenceProtocol for $dst {
+            fn __len__(&self) -> usize {
+                self.nodes.len()
+            }
+
+            fn __getitem__(&self, idx: isize) -> $vecClass {
+                let idx2 = usize::try_from(idx).unwrap();
+
+                self.nodes[idx2]
             }
         }
     };
