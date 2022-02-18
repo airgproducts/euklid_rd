@@ -5,7 +5,7 @@ use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 use std::convert::TryFrom;
-
+use std::ops::{Add, Sub};
 #[pyclass]
 #[derive(Clone, Copy)]
 pub struct Vector2D {
@@ -27,6 +27,21 @@ trait Vector {
 
 macro_rules! pyvector {
     ($dst: ty) => {
+        impl Add for $dst {
+            type Output = Self;
+
+            fn add(self, other: Self) -> Self {
+                Self { v: self.v + other.v }
+            }
+        }
+
+        impl Sub for $dst {
+            type Output = Self;
+
+            fn sub(self, other: Self) -> Self {
+                Self { v: self.v - other.v }
+            }
+        }
 
         impl Vector for $dst {
             fn copy(&self) -> Self {
@@ -211,7 +226,7 @@ impl Vector3D {
     ///
     /// cross(self: Vector3D, other: Vector3D) -> Vector3D
     /// calculate the cross product of two Vector3D vectors
-    fn cross(&self, other: &Self) -> Self {
+    pub fn cross(&self, other: &Self) -> Self {
         let v = self.v.cross(&other.v);
         Self { v }
     }

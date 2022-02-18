@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-"""Unittest for euklid_rs against euklid"""
+"""Unittest for euklid_rs.vector against euklid.vector"""
 
 import math
 import unittest

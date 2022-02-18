@@ -4,9 +4,9 @@ use pyo3::prelude::*;
 use crate::vector::vector;
 
 #[pyclass]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Transformation {
-    matrix: na::base::Matrix4<f64>,
+    pub matrix: na::base::Matrix4<f64>,
 }
 
 #[pymethods]
