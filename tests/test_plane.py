@@ -20,7 +20,6 @@ class TestPlaneFunctions(TestCase):
 
         self.plane_r = Plane(self.r_p3d_p0, self.r_p3d_v1, self.r_p3d_v2)
 
-    @unittest.skip(reason="p0 is probably wrong")
     def test_plane_return_vectors_p0(self) -> None:
         self.assert_almost_equal_vec(self.plane_r.p0, Vector3D([2, 3, 4]))
 

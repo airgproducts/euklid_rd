@@ -37,8 +37,10 @@ class TestPlaneFunctions(unittest.TestCase):
         assert str(plane_c.project(self.c_p3d_v1)) == str(
             euklid.vector.Vector2D([54, -90])
         )
-        # assert str(self.plane_r.project(self.r_p3d_v1)) == str(euklid_rs.vector.Vector2D([54, -90]))
-
+        plane_r = euklid_rs.plane.Plane(self.r_p3d_p0, self.r_p3d_v1, self.r_p3d_v2)
+        assert str(plane_r.project(self.r_p3d_v1)) == str(
+            euklid_rs.vector.Vector2D([54, -90])
+        )
 
 if __name__ == "__main__":
     unittest.main(exit=False)
