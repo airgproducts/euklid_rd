@@ -3,11 +3,13 @@ use pyo3::types::PyDict;
 use pyo3::wrap_pymodule;
 
 mod polyline;
+mod polyline_2d;
 
 pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
     fn polyline(_py: Python, m: &PyModule) -> PyResult<()> {
         m.add_class::<polyline::PolyLine2D>()?;
+        m.add_class::<polyline::PolyLine3D>()?;
         Ok(())
     }
 

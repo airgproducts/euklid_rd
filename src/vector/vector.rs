@@ -19,9 +19,10 @@ pub struct Vector3D {
     pub v: na::Vector3<f64>,
 }
 
-trait Vector {
+pub trait Vector {
     fn copy(&self) -> Self;
     fn dot(&self, other: &Self) -> f64;
+    fn scale(&self, other: &Self) -> Self;
     fn length(&self) -> f64;
     fn normalized(&self) -> Self;
 }
@@ -36,6 +37,16 @@ macro_rules! pyvector {
 
             fn dot(&self, other: &Self) -> f64 {
                 self.v.dot(&other.v)
+            }
+
+            fn scale(&self, other: &Self) -> Self {
+                let mut v = self.v.clone();
+
+                for i in 0..Self::DIMENSIONS {
+                    v[i] *= other.v[i];
+                }
+
+                Self { v }
             }
 
             fn length(&self) -> f64 {
@@ -78,6 +89,7 @@ macro_rules! pyvector {
 
         #[pymethods]
         impl $dst {
+            pub const SMALL_N: f64 = 1e-8;
             /// copy($self)
             /// --
             ///
@@ -108,6 +120,10 @@ macro_rules! pyvector {
             /// This function calculates the length of a Vector.
             pub fn length(&self) -> f64 {
                 Vector::length(self)
+            }
+
+            pub fn tolist(&self) -> [f64; Self::DIMENSIONS] {
+                self.v.into()
             }
         }
 
@@ -143,20 +159,20 @@ macro_rules! pyvector {
 
         #[pyproto]
         impl PyNumberProtocol for $dst {
-            fn __add__(lhs: Self, rhs: Self) -> PyResult<Self> {
-                Ok(Self { v: lhs.v + rhs.v })
+            fn __add__(lhs: Self, rhs: Self) -> Self {
+                Self { v: lhs.v + rhs.v }
             }
 
-            fn __sub__(lhs: Self, rhs: Self) -> PyResult<Self> {
-                Ok(Self { v: lhs.v - rhs.v })
+            fn __sub__(lhs: Self, rhs: Self) -> Self {
+                Self { v: lhs.v - rhs.v }
             }
 
-            fn __mul__(lhs: Self, value: f64) -> PyResult<Self> {
-                Ok(Self { v: lhs.v * value })
+            fn __mul__(lhs: Self, value: f64) -> Self {
+                Self { v: lhs.v * value }
             }
 
-            fn __truediv__(lhs: Self, value: f64) -> PyResult<Self> {
-                Ok(Self { v: lhs.v / value })
+            fn __truediv__(lhs: Self, value: f64) -> Self {
+                Self { v: lhs.v / value }
             }
         }
 
@@ -196,16 +212,22 @@ pyvector!(Vector3D);
 impl Vector2D {
     pub const DIMENSIONS: usize = 2;
     #[new]
-    pub fn __new__(v: [f64; 2]) -> PyResult<Self> {
+    pub fn __new__(v: [f64; 2]) -> Self {
         let v = na::Vector2::new(v[0], v[1]);
-        Ok(Self { v })
+        Self { v }
+    }
+
+    #[staticmethod]
+    pub fn scalar(v: f64) -> Self {
+        let v = na::Vector2::new(v, v);
+        Self { v }
     }
 
     /// angle($self)
     /// --
     ///
     /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
-    fn angle(&self) -> f64 {
+    pub fn angle(&self) -> f64 {
         f64::atan2(self.v[1], self.v[0])
     }
 
@@ -213,7 +235,7 @@ impl Vector2D {
     /// --
     ///
     /// This function calculates the cross product of two Vector2D vectors.
-    fn cross(&self, other: &Self) -> f64 {
+    pub fn cross(&self, other: &Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
 }
@@ -222,9 +244,15 @@ impl Vector2D {
 impl Vector3D {
     pub const DIMENSIONS: usize = 3;
     #[new]
-    pub fn __new__(v: [f64; 3]) -> PyResult<Self> {
+    pub fn __new__(v: [f64; 3]) -> Self {
         let v = na::Vector3::new(v[0], v[1], v[2]);
-        Ok(Self { v })
+        Self { v }
+    }
+
+    #[staticmethod]
+    pub fn scalar(v: f64) -> Self {
+        let v = na::Vector3::new(v, v, v);
+        Self { v }
     }
 
     /// cross($self, other)
@@ -234,5 +262,63 @@ impl Vector3D {
     fn cross(&self, other: &Self) -> Self {
         let v = self.v.cross(&other.v);
         Self { v }
+    }
+}
+
+#[pyclass]
+#[derive(Clone, Copy)]
+pub struct CutResult {
+    #[pyo3(get)]
+    pub ik_1: f64,
+    #[pyo3(get)]
+    pub ik_2: f64,
+    #[pyo3(get)]
+    pub point: Vector2D,
+}
+
+#[pymethods]
+impl CutResult {
+    fn __repr__(&self) -> String {
+        format!(
+            "CutResult: {}/{} ({}, {})",
+            self.ik_1, self.ik_2, self.point.v[0], self.point.v[1]
+        )
+    }
+}
+
+pub fn cut_2d(
+    l1_p1: &Vector2D,
+    l1_p2: &Vector2D,
+    l2_p1: &Vector2D,
+    l2_p2: &Vector2D,
+) -> Option<CutResult> {
+    // Line AB represented as a1x + b1y = c1
+    let a1 = l1_p2.v[1] - l1_p1.v[1];
+    let b1 = l1_p1.v[0] - l1_p2.v[0];
+    let c1 = a1 * l1_p1.v[0] + b1 * l1_p1.v[1];
+
+    // Line CD represented as a2x + b2y = c2
+    let a2 = l2_p2.v[1] - l2_p1.v[1];
+    let b2 = l2_p1.v[0] - l2_p2.v[0];
+    let c2 = a2 * l2_p1.v[0] + b2 * l2_p1.v[1];
+
+    let determinant = a1 * b2 - a2 * b1;
+
+    if determinant < Vector2D::SMALL_N {
+        return None;
+    } else {
+        let x = (b2 * c1 - b1 * c2) / determinant;
+        let y = (a1 * c2 - a2 * c1) / determinant;
+
+        let point = Vector2D::__new__([x, y]);
+
+        let diff1 = *l1_p2 - l1_p1;
+        let diff2 = *l2_p2 - l2_p1;
+
+        Some(CutResult {
+            ik_1: (point - l1_p1).dot(&diff1) / diff1.dot(&diff1),
+            ik_2: (point - l2_p1).dot(&diff2) / diff2.dot(&diff2),
+            point,
+        })
     }
 }
