@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 
 mod plane;
-pub mod vector;
 mod polyline;
+pub mod vector;
 
 /// A Python module implemented in Rust.
 #[pymodule]

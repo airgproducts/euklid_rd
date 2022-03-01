@@ -3,7 +3,7 @@ extern crate pyo3;
 use crate::vector::vector::*;
 use pyo3::prelude::*;
 
-const tolerance: f64 = 1e-5;
+const TOLERANCE: f64 = 1e-5;
 
 #[pymethods]
 impl PolyLine2D {
@@ -136,10 +136,10 @@ impl PolyLine2D {
                 if 0. < cut.ik_1 && cut.ik_1 <= 1. {
                     results.push(cut);
                 } else if let Some(cut2) = last_result {
-                    if -tolerance < cut.ik_1
+                    if -TOLERANCE < cut.ik_1
                         && cut.ik_1 <= 0.
                         && 1. < cut2.ik_1
-                        && cut2.ik_1 < 1. + tolerance
+                        && cut2.ik_1 < 1. + TOLERANCE
                     {
                         results.push(cut2);
                     }
@@ -183,10 +183,10 @@ impl PolyLine2D {
             let cuts = self.cut(&other.nodes[i], &other.nodes[i + 1]);
 
             for cut in cuts {
-                if -tolerance < cut.ik_2
-                    && cut.ik_2 < 1. + tolerance
-                    && -tolerance < cut.ik_1
-                    && cut.ik_1 < (self.nodes.len() - 1) as f64 + tolerance
+                if -TOLERANCE < cut.ik_2
+                    && cut.ik_2 < 1. + TOLERANCE
+                    && -TOLERANCE < cut.ik_1
+                    && cut.ik_1 < (self.nodes.len() - 1) as f64 + TOLERANCE
                 {
                     result.push([cut.ik_1, i as f64 + cut.ik_2])
                 }
@@ -210,7 +210,7 @@ std::vector<std::pair<double, double>> PolyLine2D::cut(const PolyLine2D& l2) con
         let cuts = self.cut(*l2.nodes[i], *l2.nodes[i+1]);
 
         for (let cut: cuts) {
-            if (-tolerance < cut.second && cut.second < 1+tolerance && -tolerance < cut.first && cut.first < self.nodes.size()-1+tolerance) {
+            if (-TOLERANCE < cut.second && cut.second < 1+TOLERANCE && -TOLERANCE < cut.first && cut.first < self.nodes.size()-1+TOLERANCE) {
                 result.push_back({cut.first, i+cut.second});
             }
 
@@ -247,7 +247,7 @@ PolyLine2D PolyLine2D::fix_errors() const {
 
                 int start_2 = int(result.first) + 1;
 
-                if (std::abs(result.first-start_2) < tolerance) {
+                if (std::abs(result.first-start_2) < TOLERANCE) {
                     start_2 += 1;
                 }
 
@@ -270,7 +270,7 @@ PolyLine2D PolyLine2D::fix_errors() const {
     nodes_new.push_back(std::make_shared<Vector2D>(*self.nodes[0]));
 
     for (size_t i=0; i<segment_lengthes.size(); i++){
-        if (segment_lengthes[i] > tolerance) {
+        if (segment_lengthes[i] > TOLERANCE) {
             nodes_new.push_back(std::make_shared<Vector2D>(*self.nodes[i+1]));
         }
     }

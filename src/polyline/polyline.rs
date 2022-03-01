@@ -7,8 +7,6 @@ macro_rules! define_polyline {
             use pyo3::class::sequence::PySequenceProtocol;
             use pyo3::prelude::*;
 
-            const small_d: f64 = 1e-10;
-
             // Define overload argument types
             #[derive(FromPyObject)]
             pub enum ScaleArgs {
