@@ -5,7 +5,7 @@ use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 use std::convert::TryFrom;
-use std::ops;
+use std::ops::{Add, Sub};
 
 #[pyclass]
 #[derive(Clone, Copy)]
@@ -28,7 +28,23 @@ pub trait Vector {
 }
 
 macro_rules! pyvector {
-    ($dst: ident) => {
+    ($dst: ty) => {
+        impl Add for $dst {
+            type Output = Self;
+
+            fn add(self, other: Self) -> Self {
+                Self { v: self.v + other.v }
+            }
+        }
+
+        impl Sub for $dst {
+            type Output = Self;
+
+            fn sub(self, other: Self) -> Self {
+                Self { v: self.v - other.v }
+            }
+        }
+
         impl Vector for $dst {
             fn copy(&self) -> Self {
                 let v = self.v.clone();
@@ -93,7 +109,8 @@ macro_rules! pyvector {
             /// copy($self)
             /// --
             ///
-            /// This function copies a Vector object.
+            #[doc = concat!("copy(self: ", stringify!($dst), ") -> ", stringify!($dst))]
+            #[doc = "make a copy"]
             pub fn copy(&self) -> Self {
                 Vector::copy(self)
             }
@@ -101,15 +118,18 @@ macro_rules! pyvector {
             /// dot($self, other)
             /// --
             ///
-            /// This function calculates the dot product of two Vectors.
+            #[doc = concat!("dot(self: ", stringify!($dst), ", other: ", stringify!($dst), ") -> float")]
+            #[doc = "calculate the dot product of two Vectors"]
             pub fn dot(&self, other: &Self) -> f64 {
                 Vector::dot(self, &other)
             }
 
+
             /// normalized($self)
             /// --
             ///
-            /// This function calculates a normalized Vector.
+            #[doc = concat!("normalized(self: ", stringify!($dst), ") -> ", stringify!($dst))]
+            #[doc = "get a unit-sized vector"]
             pub fn normalized(&self) -> Self {
                 Vector::normalized(&self)
             }
@@ -117,7 +137,8 @@ macro_rules! pyvector {
             /// length($self)
             /// --
             ///
-            /// This function calculates the length of a Vector.
+            #[doc = concat!("length(self: ", stringify!($dst), ") -> float")]
+            #[doc = "get the length of a Vector"]
             pub fn length(&self) -> f64 {
                 Vector::length(self)
             }
@@ -226,16 +247,18 @@ impl Vector2D {
     /// angle($self)
     /// --
     ///
-    /// This function calculates the angle angle relative to the x-axis and y-axis from a Vector2D.
-    pub fn angle(&self) -> f64 {
+    /// angle(self: Vector2D) -> float
+    /// calculate the angle angle relative to the x-axis and y-axis from a Vector2D
+    fn angle(&self) -> f64 {
         f64::atan2(self.v[1], self.v[0])
     }
 
     /// cross($self, other)
     /// --
     ///
-    /// This function calculates the cross product of two Vector2D vectors.
-    pub fn cross(&self, other: &Self) -> f64 {
+    /// cross(self: Vector2D, other: Vector2D) -> float
+    /// calculate the cross product of two Vector2D vectors
+    fn cross(&self, other: &Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
 }
@@ -258,8 +281,9 @@ impl Vector3D {
     /// cross($self, other)
     /// --
     ///
-    /// This function calculates the cross product of two Vector3D vectors.
-    fn cross(&self, other: &Self) -> Self {
+    /// cross(self: Vector3D, other: Vector3D) -> Vector3D
+    /// calculate the cross product of two Vector3D vectors
+    pub fn cross(&self, other: &Self) -> Self {
         let v = self.v.cross(&other.v);
         Self { v }
     }
