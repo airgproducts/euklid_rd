@@ -5,7 +5,7 @@ use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 use std::convert::TryFrom;
-use std::ops::{Add, Sub};
+use std::ops;
 
 #[pyclass]
 #[derive(Clone, Copy)]
@@ -29,7 +29,7 @@ pub trait Vector {
 
 macro_rules! pyvector {
     ($dst: ty) => {
-        impl Add for $dst {
+        impl ops::Add for $dst {
             type Output = Self;
 
             fn add(self, other: Self) -> Self {
@@ -37,7 +37,7 @@ macro_rules! pyvector {
             }
         }
 
-        impl Sub for $dst {
+        impl ops::Sub for $dst {
             type Output = Self;
 
             fn sub(self, other: Self) -> Self {
@@ -249,7 +249,7 @@ impl Vector2D {
     ///
     /// angle(self: Vector2D) -> float
     /// calculate the angle angle relative to the x-axis and y-axis from a Vector2D
-    fn angle(&self) -> f64 {
+    pub fn angle(&self) -> f64 {
         f64::atan2(self.v[1], self.v[0])
     }
 
@@ -258,7 +258,7 @@ impl Vector2D {
     ///
     /// cross(self: Vector2D, other: Vector2D) -> float
     /// calculate the cross product of two Vector2D vectors
-    fn cross(&self, other: &Self) -> f64 {
+    pub fn cross(&self, other: &Self) -> f64 {
         self.v[0] * other.v[1] - other.v[0] * self.v[1]
     }
 }

@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
-mod polyline;
 mod plane;
+mod polyline;
 pub mod vector;
 
 /// A Python module implemented in Rust.
