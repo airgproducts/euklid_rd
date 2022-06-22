@@ -212,9 +212,9 @@ macro_rules! define_polyline {
                     let direction: isize = if (distance < 0.) { -1 } else { 1 };
 
                     let mut next_value = if direction > 0 {
-                        start.floor() as isize
-                    } else {
                         start.ceil() as isize
+                    } else {
+                        start.floor() as isize
                     };
 
                     if (f64::abs(start - next_value as f64) < 1e-5) {

@@ -328,7 +328,9 @@ pub fn cut_2d(
 
     let determinant = a1 * b2 - a2 * b1;
 
-    if determinant < Vector2D::SMALL_N {
+    if determinant.abs() < Vector2D::SMALL_N {
+        let nix = determinant.abs();
+        let flux = Vector2D::SMALL_N;
         return None;
     } else {
         let x = (b2 * c1 - b1 * c2) / determinant;

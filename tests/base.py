@@ -1,8 +1,11 @@
 import unittest
 import euklid_rs
 
+
 class TestCase(unittest.TestCase):
-    def assert_almost_equal_vec(self, vec_1, vec_2, places: int=8):
+    """Base TestCase"""
+
+    def assert_almost_equal_vec(self, vec_1, vec_2, places: int = 8):
         """Check equality of two vectors"""
         if isinstance(vec_1, euklid_rs.vector.Vector3D):
             dimension = 3

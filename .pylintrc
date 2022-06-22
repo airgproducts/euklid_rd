@@ -4,3 +4,9 @@ ignored-modules=euklid_rs
 
 [DESIGN]
 max-attributes=8
+
+[TYPECHECK]
+generated-members=euklid_rs.*,euklid.*
+
+[MESSAGES CONTROL]
+disable=missing-module-docstring

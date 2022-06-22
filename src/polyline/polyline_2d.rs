@@ -3,7 +3,7 @@ extern crate pyo3;
 use crate::vector::vector::*;
 use pyo3::prelude::*;
 
-const tolerance: f64 = 1e-5;
+const TOLERANCE: f64 = 1e-3;
 
 #[pymethods]
 impl PolyLine2D {
@@ -125,7 +125,7 @@ impl PolyLine2D {
         let mut last_result = result;
 
         if let Some(cut) = result {
-            if cut.ik_1 <= tolerance {
+            if cut.ik_1 <= TOLERANCE {
                 results.push(cut);
             }
         }
@@ -135,13 +135,13 @@ impl PolyLine2D {
             result = cut_2d(&self.nodes[i], &self.nodes[i + 1], &p1, &p2);
 
             if let Some(cut) = result {
-                if tolerance < cut.ik_1 && cut.ik_1 <= 1. - tolerance {
+                if TOLERANCE < cut.ik_1 && cut.ik_1 <= 1. - TOLERANCE {
                     results.push(cut);
                 } else if let Some(cut2) = last_result {
-                    if -tolerance < cut.ik_1
-                        && cut.ik_1 <= tolerance
-                        && 1. - tolerance < cut2.ik_1
-                        && cut2.ik_1 <= 1. + tolerance
+                    if -TOLERANCE < cut.ik_1
+                        && cut.ik_1 <= TOLERANCE
+                        && 1. - TOLERANCE < cut2.ik_1
+                        && cut2.ik_1 <= 1. + TOLERANCE
                     {
                         results.push(cut2);
                     }
@@ -152,7 +152,7 @@ impl PolyLine2D {
 
         if let Some(cut) = result {
             // add value if for the last cut ik_1 is greater than 1 (extrapolate end)
-            if cut.ik_1 > 1. - tolerance {
+            if cut.ik_1 > 1. - TOLERANCE {
                 results.push(cut);
             }
         }
@@ -185,10 +185,10 @@ impl PolyLine2D {
             let cuts = self.cut(&other.nodes[i], &other.nodes[i + 1]);
 
             for cut in cuts {
-                if -tolerance < cut.ik_2
-                    && cut.ik_2 < 1. + tolerance
-                    && -tolerance < cut.ik_1
-                    && cut.ik_1 < (self.nodes.len() - 1) as f64 + tolerance
+                if -TOLERANCE < cut.ik_2
+                    && cut.ik_2 < 1. + TOLERANCE
+                    && -TOLERANCE < cut.ik_1
+                    && cut.ik_1 < (self.nodes.len() - 1) as f64 + TOLERANCE
                 {
                     result.push([cut.ik_1, i as f64 + cut.ik_2])
                 }
