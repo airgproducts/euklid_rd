@@ -120,12 +120,14 @@ impl PolyLine2D {
             return results;
         }
 
-        // cut first segment
+        // cut first segment (extrapolate front)
         let mut result = cut_2d(&self.nodes[0], &self.nodes[1], p1, p2);
         let mut last_result = result;
 
         if let Some(cut) = result {
-            results.push(cut);
+            if cut.ik_1 <= tolerance {
+                results.push(cut);
+            }
         }
 
         // try all segments
@@ -133,13 +135,13 @@ impl PolyLine2D {
             result = cut_2d(&self.nodes[i], &self.nodes[i + 1], &p1, &p2);
 
             if let Some(cut) = result {
-                if 0. < cut.ik_1 && cut.ik_1 <= 1. {
+                if tolerance < cut.ik_1 && cut.ik_1 <= 1. - tolerance {
                     results.push(cut);
                 } else if let Some(cut2) = last_result {
                     if -tolerance < cut.ik_1
-                        && cut.ik_1 <= 0.
-                        && 1. < cut2.ik_1
-                        && cut2.ik_1 < 1. + tolerance
+                        && cut.ik_1 <= tolerance
+                        && 1. - tolerance < cut2.ik_1
+                        && cut2.ik_1 <= 1. + tolerance
                     {
                         results.push(cut2);
                     }
@@ -150,7 +152,7 @@ impl PolyLine2D {
 
         if let Some(cut) = result {
             // add value if for the last cut ik_1 is greater than 1 (extrapolate end)
-            if cut.ik_1 > 1. {
+            if cut.ik_1 > 1. - tolerance {
                 results.push(cut);
             }
         }
