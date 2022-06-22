@@ -41,7 +41,7 @@ class TestRustModules(unittest.TestCase):
         self.assertEqual(resampled_line[0], self.line[0])
         self.assertEqual(resampled_line[-1], self.line[-1])
         self.assertEqual(len(resampled_line), target_length)
-        self.assertAlmostEqual(resampled_line.get_length(), self.line.get_length(), 2)
+        self.assertAlmostEqual(resampled_line.get_length(), self.line.get_length(), 1)
 
     # pylint: disable=invalid-name
     def assertSingleCut(self, cuts, ik_1: float):
