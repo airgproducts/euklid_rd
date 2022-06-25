@@ -4,23 +4,23 @@
 """Unittest for vectors from the rust module euklid_rs"""
 import random
 import unittest
-from euklid_rs.polyline import PolyLine2D
-from euklid_rs.vector import Vector2D
+from euklid_rs.polyline import PolyLine2D, PolyLine3D
+from euklid_rs.vector import Vector2D, Vector3D
 
 
-class TestRustModules(unittest.TestCase):
-    """Test euklid_rs rust module"""
+class TestPolyLine3D(unittest.TestCase):
+    """Test PolyLine3D"""
 
-    def setUp(self) -> None:
-        # Vector2D
-        self.line = PolyLine2D([[0, 0], [1, 0], [2, 1], [3, 3], [4, 5]])
+    def setUp(self) -> PolyLine3D:
+        self.line = PolyLine3D([[0, 0, 0], [1, 0, 0], [2, 1, 0], [3, 3, 0], [4, 5, 0]])
+        return self.line
 
     def test_get(self):
         """Test getting a point"""
-        self.assertEqual(self.line.get(0), Vector2D([0, 0]))
-        self.assertEqual(self.line.get(1), Vector2D([1, 0]))
-        self.assertEqual(self.line.get(1.5), Vector2D([1.5, 0.5]))
-        self.assertEqual(self.line.get(-1), Vector2D([-1, 0]))
+        self.assertEqual(self.line.get(0), Vector3D([0, 0, 0]))
+        self.assertEqual(self.line.get(1), Vector3D([1, 0, 0]))
+        self.assertEqual(self.line.get(1.5), Vector3D([1.5, 0.5, 0]))
+        self.assertEqual(self.line.get(-1), Vector3D([-1, 0, 0]))
 
     def test_list_access(self):
         """test polyline getitem"""
@@ -42,6 +42,22 @@ class TestRustModules(unittest.TestCase):
         self.assertEqual(resampled_line[-1], self.line[-1])
         self.assertEqual(len(resampled_line), target_length)
         self.assertAlmostEqual(resampled_line.get_length(), self.line.get_length(), 1)
+
+
+class TestPolyLine2D(TestPolyLine3D):
+    """Test PolyLine2D"""
+
+    def setUp(self) -> None:
+        line = super().setUp()
+        list(line)
+        self.line = PolyLine2D([[p[0], p[1]] for p in line])
+
+    def test_get(self):
+        """Test getting a point"""
+        self.assertEqual(self.line.get(0), Vector2D([0, 0]))
+        self.assertEqual(self.line.get(1), Vector2D([1, 0]))
+        self.assertEqual(self.line.get(1.5), Vector2D([1.5, 0.5]))
+        self.assertEqual(self.line.get(-1), Vector2D([-1, 0]))
 
     # pylint: disable=invalid-name
     def assertSingleCut(self, cuts, ik_1: float):
@@ -77,7 +93,56 @@ class TestRustModules(unittest.TestCase):
         p2 = Vector2D([4.176588348946094, -1.3933998974232116])
 
         cuts = curve.cut(p1, p2)
-        self.assertSingleCut(cuts, 1.)
+        self.assertSingleCut(cuts, 3.0)
+
+    def test_cut_with_polyline(self):
+        """Test cut between two PolyLine2D's"""
+        other = PolyLine2D([[1, -1], [1, 1], [2, -1]])
+
+        cuts = self.line.cut_with_polyline(other)
+
+        self.assertEqual(len(cuts), 2)
+        self.assertAlmostEqual(cuts[0][0], 1)
+    
+
+    def test_fix(self):
+        """Test self intersecting line"""
+        line = PolyLine2D([
+            [0,0],
+            [1,0],
+            [1,1],
+            [0.5, -1]
+        ]).fix_errors()
+
+        self.assertEqual(len(line), 3)
+        self.assertEqual(line.nodes[1], Vector2D([0.75, 0]))
+
+
+    def test_fix2(self):
+        """Test self intersecting line (2)"""
+        nodes = [
+            [0,0],
+            [0.5,0],
+            [1,0],
+            [1.5,0.5],
+            [1,1],
+            [0.5, -1]
+        ]
+
+        line = PolyLine2D(nodes)
+        line_fixed = line.fix_errors()
+
+        self.assertTrue(len(line_fixed) < len(line))
+        self.assertEqual(line_fixed.nodes[0], line.nodes[0])
+        self.assertEqual(line_fixed.nodes[2], Vector2D([0.75, 0]))
+        self.assertEqual(line_fixed.nodes[3], line.nodes[-1])
+
+    def test_fix_zero_length(self):
+        line = PolyLine2D([[0,0], [1,0],[1,1],[1,1+1e-8],[0,0]])
+        line_fixed = line.fix_errors()
+
+        self.assertEqual(len(line_fixed), len(line)-1)
+
 
 
 if __name__ == "__main__":

@@ -1,7 +1,4 @@
 use nalgebra as na;
-use pyo3::class::basic::PyObjectProtocol;
-use pyo3::class::number::PyNumberProtocol;
-use pyo3::class::sequence::PySequenceProtocol;
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 use std::convert::TryFrom;
@@ -78,8 +75,8 @@ macro_rules! pyvector {
         impl ops::Add<&$dst> for $dst {
             type Output = $dst;
 
-            fn add(self, _rhs: &$dst) -> $dst {
-                let v = self.v + _rhs.v;
+            fn add(self, other: &$dst) -> $dst {
+                let v = self.v + other.v;
 
                 Self { v }
             }
@@ -87,8 +84,8 @@ macro_rules! pyvector {
         impl ops::Sub<&$dst> for $dst {
             type Output = $dst;
 
-            fn sub(self, _rhs: &$dst) -> $dst {
-                let v = self.v - _rhs.v;
+            fn sub(self, other: &$dst) -> $dst {
+                let v = self.v - other.v;
 
                 Self { v }
             }
@@ -96,8 +93,18 @@ macro_rules! pyvector {
         impl ops::Mul<f64> for $dst {
             type Output = $dst;
 
-            fn mul(self, _rhs: f64) -> $dst {
-                let v = self.v * _rhs;
+            fn mul(self, other: f64) -> $dst {
+                let v = self.v * other;
+
+                Self { v }
+            }
+        }
+
+        impl ops::Div<f64> for $dst {
+            type Output = $dst;
+
+            fn div(self, other: f64) -> $dst {
+                let v = self.v / other;
 
                 Self { v }
             }
@@ -146,10 +153,7 @@ macro_rules! pyvector {
             pub fn tolist(&self) -> [f64; Self::DIMENSIONS] {
                 self.v.into()
             }
-        }
 
-        #[pyproto]
-        impl PyObjectProtocol for $dst {
             fn __repr__(&self) -> PyResult<String> {
                 let temp_string = match self.v.len() {
                     2 => format!("Vector2D({:.4} {:.4})", self.v[0], self.v[1]),
@@ -163,8 +167,8 @@ macro_rules! pyvector {
             }
 
             fn __richcmp__(
-                &'p self,
-                other: PyRef<'p, $dst>,
+                &self,
+                other: PyRef<$dst>,
                 op: pyo3::basic::CompareOp,
             ) -> PyResult<bool> {
                 match op {
@@ -176,29 +180,23 @@ macro_rules! pyvector {
                     pyo3::basic::CompareOp::Ge => Ok(self.length() >= other.length()),
                 }
             }
-        }
 
-        #[pyproto]
-        impl PyNumberProtocol for $dst {
-            fn __add__(lhs: Self, rhs: Self) -> Self {
-                Self { v: lhs.v + rhs.v }
+            fn __add__(&self, other: Self) -> Self {
+                *self + other
             }
 
-            fn __sub__(lhs: Self, rhs: Self) -> Self {
-                Self { v: lhs.v - rhs.v }
+            fn __sub__(&self, other: Self) -> Self {
+                *self - other
             }
 
-            fn __mul__(lhs: Self, value: f64) -> Self {
-                Self { v: lhs.v * value }
+            fn __mul__(&self, value: f64) -> Self {
+                *self * value
             }
 
-            fn __truediv__(lhs: Self, value: f64) -> Self {
-                Self { v: lhs.v / value }
+            fn __truediv__(&self, value: f64) -> Self {
+                *self / value
             }
-        }
 
-        #[pyproto]
-        impl PySequenceProtocol for $dst {
             fn __getitem__(&self, idx: isize) -> PyResult<f64> {
                 match (usize::try_from(idx)) {
                     Ok(index) => {
@@ -208,7 +206,8 @@ macro_rules! pyvector {
                     }
                     Err(_) => {}
                 }
-                return Err(PyIndexError::new_err("index out of range"));
+
+                Err(PyIndexError::new_err("index out of range"))
             }
 
             fn __setitem__(&mut self, idx: isize, value: f64) -> PyResult<()> {
@@ -329,8 +328,6 @@ pub fn cut_2d(
     let determinant = a1 * b2 - a2 * b1;
 
     if determinant.abs() < Vector2D::SMALL_N {
-        let nix = determinant.abs();
-        let flux = Vector2D::SMALL_N;
         return None;
     } else {
         let x = (b2 * c1 - b1 * c2) / determinant;

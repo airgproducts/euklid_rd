@@ -3,7 +3,7 @@ extern crate pyo3;
 use crate::vector::vector::*;
 use pyo3::prelude::*;
 
-const TOLERANCE: f64 = 1e-3;
+const CUT_TOLERANCE: f64 = 1e-5;
 
 #[pymethods]
 impl PolyLine2D {
@@ -125,7 +125,7 @@ impl PolyLine2D {
         let mut last_result = result;
 
         if let Some(cut) = result {
-            if cut.ik_1 <= TOLERANCE {
+            if cut.ik_1 <= CUT_TOLERANCE {
                 results.push(cut);
             }
         }
@@ -134,25 +134,29 @@ impl PolyLine2D {
         for i in 0..self.nodes.len() - 1 {
             result = cut_2d(&self.nodes[i], &self.nodes[i + 1], &p1, &p2);
 
-            if let Some(cut) = result {
-                if TOLERANCE < cut.ik_1 && cut.ik_1 <= 1. - TOLERANCE {
+            if let Some(mut cut) = result {
+                if CUT_TOLERANCE < cut.ik_1 && cut.ik_1 <= 1. - CUT_TOLERANCE {
+                    cut.ik_1 = i as f64 + cut.ik_1;
                     results.push(cut);
                 } else if let Some(cut2) = last_result {
-                    if -TOLERANCE < cut.ik_1
-                        && cut.ik_1 <= TOLERANCE
-                        && 1. - TOLERANCE < cut2.ik_1
-                        && cut2.ik_1 <= 1. + TOLERANCE
+                    // catch tolerance values (close to a knot vector)
+                    if -CUT_TOLERANCE < cut.ik_1
+                        && cut.ik_1 <= CUT_TOLERANCE
+                        && 1. - CUT_TOLERANCE < cut2.ik_1
+                        && cut2.ik_1 <= 1. + CUT_TOLERANCE
                     {
-                        results.push(cut2);
+                        cut.ik_1 = i as f64 + cut.ik_1;
+                        results.push(cut);
                     }
                 }
                 last_result = result;
             }
         }
 
-        if let Some(cut) = result {
+        if let Some(mut cut) = result {
             // add value if for the last cut ik_1 is greater than 1 (extrapolate end)
-            if cut.ik_1 > 1. - TOLERANCE {
+            if cut.ik_1 > 1. - CUT_TOLERANCE {
+                cut.ik_1 = (self.nodes.len() - 1) as f64 + cut.ik_1;
                 results.push(cut);
             }
         }
@@ -185,10 +189,10 @@ impl PolyLine2D {
             let cuts = self.cut(&other.nodes[i], &other.nodes[i + 1]);
 
             for cut in cuts {
-                if -TOLERANCE < cut.ik_2
-                    && cut.ik_2 < 1. + TOLERANCE
-                    && -TOLERANCE < cut.ik_1
-                    && cut.ik_1 < (self.nodes.len() - 1) as f64 + TOLERANCE
+                if -CUT_TOLERANCE < cut.ik_2
+                    && cut.ik_2 < 1. + CUT_TOLERANCE
+                    && -CUT_TOLERANCE < cut.ik_1
+                    && cut.ik_1 < (self.nodes.len() - 1) as f64 + CUT_TOLERANCE
                 {
                     result.push([cut.ik_1, i as f64 + cut.ik_2])
                 }
@@ -197,88 +201,81 @@ impl PolyLine2D {
 
         result
     }
+
+    fn fix_errors(&self) -> Self {
+        let length = self.__len__();
+
+        if length < 4 {
+            return self.copy();
+        }
+
+        // go through all segments
+        for start in 0..length - 3 {
+            let new_list_start = start + 2;
+
+            let line2 = Self {
+                nodes: self.nodes[new_list_start..].to_vec(),
+            };
+            let line2_length = line2.__len__() as f64;
+
+            let cuts = line2.cut_nearest(&self.nodes[start], &self.nodes[start + 1], line2_length);
+
+            for result in cuts {
+                if 0. <= result.ik_1
+                    && result.ik_1 < (line2_length - 1 as f64) - CUT_TOLERANCE
+                    && 0. <= result.ik_2
+                    && result.ik_2 < 1.
+                {
+                    let mut new_nodes = self.nodes[..start + 1].to_vec();
+
+                    new_nodes.push(line2.get(result.ik_1));
+
+                    let mut start_2 = result.ik_1.ceil();
+
+                    if (result.ik_1 - start_2).abs() < CUT_TOLERANCE {
+                        start_2 += 1.;
+                    }
+
+                    new_nodes.extend(line2.nodes[start_2 as usize..].to_vec());
+
+                    return Self { nodes: new_nodes }.fix_errors();
+                }
+            }
+        }
+
+        let mut new_nodes = Vec::new();
+
+        // Remove len-0 segment points
+        let segments = self.get_segments();
+        new_nodes.push(self.nodes[0]);
+
+        for i in 0..segments.len() {
+            if segments[i].length() > 1e-6 {
+                new_nodes.push(self.nodes[i + 1])
+            }
+        }
+
+        Self { nodes: new_nodes }
+    }
+
+    fn boundary(&self) -> [f64; 4] {
+        let mut min_x = f64::INFINITY;
+        let mut min_y = f64::INFINITY;
+        let mut max_x = -f64::INFINITY;
+        let mut max_y = -f64::INFINITY;
+
+        for &node in &self.nodes {
+            min_x = f64::min(min_x, node.v[0]);
+            min_y = f64::min(min_y, node.v[0]);
+            max_x = f64::max(max_x, node.v[0]);
+            max_y = f64::max(max_y, node.v[0]);
+        }
+
+        [min_x, min_y, max_x, max_y]
+    }
 }
 
 /*
-
-
-
-
-std::vector<std::pair<double, double>> PolyLine2D::cut(const PolyLine2D& l2) const {
-    std::vector<std::pair<double, double>> result;
-
-
-    for (size_t i=0; i<l2.nodes.size()-1; i++) {
-        let cuts = self.cut(*l2.nodes[i], *l2.nodes[i+1]);
-
-        for (let cut: cuts) {
-            if (-tolerance < cut.second && cut.second < 1+tolerance && -tolerance < cut.first && cut.first < self.nodes.size()-1+tolerance) {
-                result.push_back({cut.first, i+cut.second});
-            }
-
-        }
-    }
-
-    return result;
-}
-
-
-PolyLine2D PolyLine2D::fix_errors() const {
-    if (self.nodes.size() <= 4) {
-        return self.copy();
-    }
-    for (size_t i=0; i<self.nodes.size()-3; i++) {
-        size_t new_list_start = i+2;
-        let nodes2 = std::vector<std::shared_ptr<Vector2D>>(self.nodes.begin() + new_list_start, self.nodes.end());
-        PolyLine2D line2 = PolyLine2D(nodes2);
-
-        let cuts = line2.cut(*self.nodes[i], *self.nodes[i+1]);
-        // start from the back
-        std::reverse(cuts.begin(), cuts.end());
-
-        for (let result: cuts) {
-            if (0 <= result.first && result.first < line2.nodes.size()-1-small_d && 0 <= result.second && result.second < 1) {
-
-                std::vector<std::shared_ptr<Vector2D>> new_nodes;
-                // new line: 0 to i and result to end
-                for (size_t j=0; j<=i; j++) {
-                    new_nodes.push_back(std::make_shared<Vector2D>(*self.nodes[j]));
-                }
-
-                new_nodes.push_back(line2.get(result.first));
-
-                int start_2 = int(result.first) + 1;
-
-                if (std::abs(result.first-start_2) < tolerance) {
-                    start_2 += 1;
-                }
-
-
-                for (size_t j=start_2; j<line2.nodes.size(); j++) {
-                    new_nodes.push_back(std::make_shared<Vector2D>(*line2.nodes[j]));
-                }
-
-                return PolyLine2D(new_nodes).fix_errors();
-            }
-        }
-
-    }
-
-    // no cuts found -> remove zero-length segments
-
-    std::vector<std::shared_ptr<Vector2D>> nodes_new;
-    // Remove len-0 segment points
-    let segment_lengthes = self.get_segment_lengthes();
-    nodes_new.push_back(std::make_shared<Vector2D>(*self.nodes[0]));
-
-    for (size_t i=0; i<segment_lengthes.size(); i++){
-        if (segment_lengthes[i] > tolerance) {
-            nodes_new.push_back(std::make_shared<Vector2D>(*self.nodes[i+1]));
-        }
-    }
-
-    return PolyLine2D(nodes_new);
-}
 
 
 double PolyLine2D::get_area() const {
@@ -296,29 +293,6 @@ double PolyLine2D::get_area() const {
     }
 
     return area/2;
-}
-
-std::vector<std::shared_ptr<Vector2D>> PolyLine2D::boundary() const {
-    double min_x = std::numeric_limits<double>::infinity();
-    double max_x = -std::numeric_limits<double>::infinity();
-    double min_y = min_x;
-    double max_y = max_x;
-
-    for (let vec: self.nodes) {
-        min_x = std::min<double>(min_x, vec->get_item(0));
-        max_x = std::max<double>(max_x, vec->get_item(0));
-        min_y = std::min<double>(min_y, vec->get_item(1));
-        max_y = std::max<double>(max_y, vec->get_item(1));
-    }
-
-    std::vector<std::shared_ptr<Vector2D>> boundary;
-
-    boundary.push_back(std::make_shared<Vector2D>(min_x, min_y));
-    boundary.push_back(std::make_shared<Vector2D>(max_x, min_y));
-    boundary.push_back(std::make_shared<Vector2D>(max_x, max_y));
-    boundary.push_back(std::make_shared<Vector2D>(min_x, max_y));
-
-    return boundary;
 }
 
 bool PolyLine2D::contains(const Vector2D& p1) const {

@@ -43,6 +43,7 @@ class TestPlaneFunctions(TestCase):
 
     def test_plane_align(self) -> None:
         """Test plane alignment"""
+
         def test_align_eq(vec1: List[float], vec2: Vector3D):
             v_1 = Vector2D(vec1)
             self.assert_almost_equal_vec(self.plane_r.align(v_1), vec2)

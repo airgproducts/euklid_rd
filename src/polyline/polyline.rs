@@ -4,10 +4,7 @@ macro_rules! define_polyline {
         pub mod $module {
 
             use crate::vector::vector::*;
-            use pyo3::class::sequence::PySequenceProtocol;
             use pyo3::prelude::*;
-
-            const small_d: f64 = 1e-10;
 
             // Define overload argument types
             #[derive(FromPyObject)]
@@ -70,7 +67,7 @@ macro_rules! define_polyline {
                     result
                 }
 
-                fn get(&self, ik: f64) -> $vecClass {
+                pub fn get(&self, ik: f64) -> $vecClass {
                     let ik_floor = ik.floor() as i32;
                     let mut i = match usize::try_from(ik_floor) {
                         Ok(val) => val,
@@ -269,7 +266,7 @@ macro_rules! define_polyline {
                     Self { nodes }
                 }
 
-                fn copy(&self) -> Self {
+                pub fn copy(&self) -> Self {
                     let mut nodes = Vec::new();
                     nodes.reserve(self.nodes.len());
 
@@ -297,7 +294,7 @@ macro_rules! define_polyline {
 
                 fn mix(&self, other: &Self, amount: f64) -> PyResult<Self> {
                     if other.nodes.len() != self.nodes.len() {
-                        pyo3::exceptions::PyValueError::new_err("shit");
+                        return Err(pyo3::exceptions::PyValueError::new_err("shit"));
                     }
 
                     let mut nodes = Vec::new();
@@ -313,7 +310,7 @@ macro_rules! define_polyline {
 
                 fn add(&self, other: &Self) -> PyResult<Self> {
                     if other.nodes.len() != self.nodes.len() {
-                        pyo3::exceptions::PyValueError::new_err("shit");
+                        return Err(pyo3::exceptions::PyValueError::new_err("shit"));
                     }
 
                     let mut nodes = Vec::new();
@@ -328,7 +325,7 @@ macro_rules! define_polyline {
 
                 fn sub(&self, other: &Self) -> PyResult<Self> {
                     if other.nodes.len() != self.nodes.len() {
-                        pyo3::exceptions::PyValueError::new_err("shit");
+                        return Err(pyo3::exceptions::PyValueError::new_err("shit"));
                     }
 
                     let mut nodes = Vec::new();
@@ -340,18 +337,24 @@ macro_rules! define_polyline {
 
                     Ok(Self { nodes })
                 }
-            }
 
-            #[pyproto]
-            impl PySequenceProtocol for $dst {
-                fn __len__(&self) -> usize {
+                pub fn __len__(&self) -> usize {
                     self.nodes.len()
                 }
 
-                fn __getitem__(&self, idx: isize) -> $vecClass {
-                    let idx2 = usize::try_from(idx).unwrap();
+                fn __getitem__(&self, idx: isize) -> PyResult<$vecClass> {
+                    let mut idx2 = idx;
+                    let length = self.__len__() as isize;
 
-                    self.nodes[idx2]
+                    if (idx < 0) {
+                        idx2 = length - idx.abs();
+                    }
+
+                    if idx2 >= length || idx2 < 0 {
+                        return Err(pyo3::exceptions::PyIndexError::new_err("out of bounds"));
+                    }
+
+                    Ok(self.nodes[usize::try_from(idx2).unwrap()])
                 }
             }
         }
