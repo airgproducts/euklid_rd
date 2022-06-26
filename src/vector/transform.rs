@@ -6,7 +6,16 @@ use crate::vector::vector;
 #[pyclass]
 #[derive(Clone, Copy, Debug)]
 pub struct Transformation {
-    pub matrix: na::base::Matrix4<f64>,
+    matrix: na::base::Matrix4<f64>,
+    inverse: Option<na::base::Matrix4<f64>>,
+}
+
+impl Transformation {
+    pub fn new(matrix: na::base::Matrix4<f64>) -> Self {
+        let inverse = matrix.try_inverse();
+
+        Self { matrix, inverse }
+    }
 }
 
 #[pymethods]
@@ -17,19 +26,19 @@ impl Transformation {
     /// apply(self: euklid_rs.vector.Transformation, other: euklid_rs.vector.Vector3D) -> euklid_rs.vector.Vector3D
     /// apply the transformation to a Vector3D
     pub fn apply(&self, vec: &vector::Vector3D) -> vector::Vector3D {
-        let mut v = na::Vector3::<f64>::new(0., 0., 0.);
+        let p = self.matrix.transform_point(&vec.v.into());
 
-        for i in 0..3 {
-            let mut value: f64 = self.matrix[(i, 3)];
+        vector::Vector3D { v: p.coords }
+    }
 
-            for j in 0..3 {
-                value += self.matrix[(i, j)] * vec.v[j];
+    pub fn apply_inverse(&self, vec: &vector::Vector3D) -> Option<vector::Vector3D> {
+        match self.inverse {
+            Some(inverse) => {
+                let p = inverse.transform_point(&vec.v.into());
+                Some(vector::Vector3D { v: p.coords })
             }
-
-            v[i] = value;
+            None => None,
         }
-
-        vector::Vector3D { v }
     }
 
     /// chain($self, other)
@@ -39,7 +48,7 @@ impl Transformation {
     /// get a chained transformation
     pub fn chain(&self, other: &Transformation) -> Transformation {
         let matrix = self.matrix * other.matrix;
-        Transformation { matrix }
+        Transformation::new(matrix)
     }
 
     /// translation(vec)
@@ -53,7 +62,7 @@ impl Transformation {
         let translation = na::geometry::Translation3::new(vec.v[0], vec.v[1], vec.v[2]);
         let matrix = translation.to_homogeneous();
 
-        Self { matrix }
+        Transformation::new(matrix)
     }
 
     #[staticmethod]
@@ -66,7 +75,7 @@ impl Transformation {
         let rotation = na::Rotation3::from_scaled_axis(scaled_axis);
         let matrix = rotation.to_homogeneous();
 
-        Self { matrix }
+        Transformation::new(matrix)
     }
 
     #[staticmethod]
@@ -79,6 +88,6 @@ impl Transformation {
         let scale3 = na::Scale3::new(scale, scale, scale);
         let matrix = scale3.to_homogeneous();
 
-        Self { matrix }
+        Transformation::new(matrix)
     }
 }

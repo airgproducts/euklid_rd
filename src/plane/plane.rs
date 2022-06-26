@@ -26,21 +26,19 @@ impl Plane {
     #[new]
     fn __new__(p0: vector::Vector3D, v1: vector::Vector3D, v2: vector::Vector3D) -> Self {
         let n = v1.cross(&v2);
-        let mut transformation = transform::Transformation {
-            matrix: na::Matrix4::<f64>::new(
-                0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            ),
-        };
+        let mut matrix = na::Matrix4::<f64>::new(
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+        );
 
         for i in 0..3 {
-            transformation.matrix[(i, 0)] = v1.v[i]; // x
-            transformation.matrix[(i, 1)] = v2.v[i]; // y
-            transformation.matrix[(i, 2)] = n.v[i]; // z
+            matrix[(i, 0)] = v1.v[i]; // x
+            matrix[(i, 1)] = v2.v[i]; // y
+            matrix[(i, 2)] = n.v[i]; // z
 
-            transformation.matrix[(i, 3)] = p0.v[i];
+            matrix[(i, 3)] = p0.v[i];
         }
 
-        Plane::setup(transformation)
+        Plane::setup(transform::Transformation::new(matrix))
     }
 
     #[staticmethod]
