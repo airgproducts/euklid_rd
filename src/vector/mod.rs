@@ -5,12 +5,15 @@ use pyo3::wrap_pymodule;
 pub mod transform;
 pub mod vector;
 
+pub use transform::Transformation;
+pub use vector::{Vector2D, Vector3D};
+
 pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
     fn vector(_py: Python, m: &PyModule) -> PyResult<()> {
-        m.add_class::<vector::Vector2D>()?;
-        m.add_class::<vector::Vector3D>()?;
-        m.add_class::<transform::Transformation>()?;
+        m.add_class::<Vector2D>()?;
+        m.add_class::<Vector3D>()?;
+        m.add_class::<Transformation>()?;
         Ok(())
     }
 

@@ -5,6 +5,7 @@ macro_rules! define_polyline {
 
             use crate::vector::vector::*;
             use pyo3::prelude::*;
+            use pyo3::types::IntoPyDict;
 
             // Define overload argument types
             #[derive(FromPyObject)]
@@ -22,6 +23,7 @@ macro_rules! define_polyline {
 
             // Define PolyLine
             #[pyclass]
+            #[derive(Clone)]
             pub struct $dst {
                 #[pyo3(get)]
                 pub nodes: Vec<$vecClass>,
@@ -56,7 +58,7 @@ macro_rules! define_polyline {
                     Self { nodes }
                 }
 
-                fn tolist(&self) -> Vec<[f64; $vecClass::DIMENSIONS]> {
+                pub fn tolist(&self) -> Vec<[f64; $vecClass::DIMENSIONS]> {
                     let mut result = Vec::new();
                     result.reserve(self.nodes.len());
 
@@ -65,6 +67,33 @@ macro_rules! define_polyline {
                     }
 
                     result
+                }
+
+                pub fn __json__(&self) -> Py<PyAny> {
+                    let result = Python::with_gil(|py| {
+                        let mut nodes = Vec::new();
+
+                        for node in &self.nodes {
+                            nodes.push(node.tolist().to_vec());
+                        }
+
+                        let dict = [("nodes", nodes)].into_py_dict(py);
+                        dict.to_object(py)
+                    });
+                    result
+                    /*
+                    let gil = Python::acquire_gil();
+                    let py = gil.python();
+                    let mut nodes = Vec::new();
+
+                    for node in &self.nodes {
+                        nodes.push(node.tolist().to_vec());
+                    }
+
+
+
+                    let dict = [("nodes", nodes)].into_py_dict(py);
+                    dict.to_object(py)*/
                 }
 
                 pub fn get(&self, ik: f64) -> $vecClass {
@@ -85,15 +114,15 @@ macro_rules! define_polyline {
 
                     if i >= node_num - 1 {
                         i = node_num - 1;
-                        diff = self.nodes[i] - &self.nodes[i - 1];
+                        diff = self.nodes[i] - self.nodes[i - 1];
                     } else {
-                        diff = self.nodes[i + 1] - &self.nodes[i];
+                        diff = self.nodes[i + 1] - self.nodes[i];
                     }
 
                     let k: f64 = ik - i as f64;
                     let p1 = self.nodes[i];
 
-                    p1 + &(diff * k)
+                    p1 + diff * k
                 }
 
                 fn get_positions(&self, ik_start: f64, ik_end: f64) -> Vec<f64> {
@@ -154,7 +183,7 @@ macro_rules! define_polyline {
                     result.reserve(self.nodes.len() - 1);
 
                     for i in 0..self.nodes.len() - 1 {
-                        result.push(self.nodes[i + 1] - &self.nodes[i]);
+                        result.push(self.nodes[i + 1] - self.nodes[i]);
                     }
 
                     result
@@ -167,12 +196,12 @@ macro_rules! define_polyline {
                         return result;
                     }
 
-                    result.push((self.nodes[1] - &self.nodes[0]).normalized());
+                    result.push((self.nodes[1] - self.nodes[0]).normalized());
 
                     for i in 0..self.nodes.len() - 2 {
-                        let first = (self.nodes[i + 1] - &self.nodes[i]).normalized();
-                        let second = (self.nodes[i + 2] - &self.nodes[i + 1]).normalized();
-                        let tangent = first + &second;
+                        let first = (self.nodes[i + 1] - self.nodes[i]).normalized();
+                        let second = (self.nodes[i + 2] - self.nodes[i + 1]).normalized();
+                        let tangent = first + second;
 
                         let length = tangent.length();
 
@@ -184,7 +213,7 @@ macro_rules! define_polyline {
                     }
 
                     result.push(
-                        (self.nodes[self.nodes.len() - 1] - &self.nodes[self.nodes.len() - 2])
+                        (self.nodes[self.nodes.len() - 1] - self.nodes[self.nodes.len() - 2])
                             .normalized(),
                     );
 
@@ -221,7 +250,7 @@ macro_rules! define_polyline {
                     let mut amount = f64::abs(distance);
 
                     let mut current_segment_length =
-                        (self.get(next_value as f64) - &self.get(start)).length();
+                        (self.get(next_value as f64) - self.get(start)).length();
                     amount -= current_segment_length;
 
                     let mut last_value = start;
@@ -239,7 +268,7 @@ macro_rules! define_polyline {
                         next_value += direction;
 
                         current_segment_length =
-                            (self.get(next_value as f64) - &self.get(last_value)).length();
+                            (self.get(next_value as f64) - self.get(last_value)).length();
 
                         amount -= current_segment_length;
                     }
@@ -301,7 +330,7 @@ macro_rules! define_polyline {
                     nodes.reserve(self.nodes.len());
 
                     for i in 0..self.nodes.len() {
-                        let node = self.nodes[i] * (1. - amount) + &(other.nodes[i] * amount);
+                        let node = self.nodes[i] * (1. - amount) + other.nodes[i] * amount;
                         nodes.push(node);
                     }
 
@@ -317,7 +346,7 @@ macro_rules! define_polyline {
                     nodes.reserve(self.nodes.len());
 
                     for i in 0..self.nodes.len() {
-                        nodes.push(self.nodes[i] + &other.nodes[i]);
+                        nodes.push(self.nodes[i] + other.nodes[i]);
                     }
 
                     Ok(Self { nodes })
@@ -332,7 +361,7 @@ macro_rules! define_polyline {
                     nodes.reserve(self.nodes.len());
 
                     for i in 0..self.nodes.len() {
-                        nodes.push(self.nodes[i] - &other.nodes[i]);
+                        nodes.push(self.nodes[i] - other.nodes[i]);
                     }
 
                     Ok(Self { nodes })
@@ -342,7 +371,7 @@ macro_rules! define_polyline {
                     self.nodes.len()
                 }
 
-                fn __getitem__(&self, idx: isize) -> PyResult<$vecClass> {
+                pub fn __getitem__(&self, idx: isize) -> PyResult<$vecClass> {
                     let mut idx2 = idx;
                     let length = self.__len__() as isize;
 

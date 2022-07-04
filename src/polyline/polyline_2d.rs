@@ -31,7 +31,7 @@ impl PolyLine2D {
         normvectors.push(segment_normals[0]);
 
         for i in 0..segment_normals.len() - 1 {
-            let normal = segment_normals[i] + &segment_normals[i + 1];
+            let normal = segment_normals[i] + segment_normals[i + 1];
 
             if normal.length() > Vector2D::SMALL_N {
                 normvectors.push(normal.normalized());
@@ -54,7 +54,7 @@ impl PolyLine2D {
         nodes.reserve(normvectors.len());
 
         for i in 0..self.nodes.len() {
-            nodes.push(self.nodes[i] + &(normvectors[i] * amount));
+            nodes.push(self.nodes[i] + normvectors[i] * amount);
         }
 
         Self { nodes }
@@ -75,12 +75,12 @@ impl PolyLine2D {
 
         for i in 0..self.nodes.len() - 1 {
             offset_segments.push([
-                self.nodes[i] + &(segment_normals[i] * amount),
-                self.nodes[i + 1] + &(segment_normals[i] * amount),
+                self.nodes[i] + segment_normals[i] * amount,
+                self.nodes[i + 1] + segment_normals[i] * amount,
             ]);
         }
 
-        result.push(self.nodes[0] + &(segment_normals[0] * amount));
+        result.push(self.nodes[0] + segment_normals[0] * amount);
 
         for i in 0..self.nodes.len() - 2 {
             let segment_1 = &segments_normalized[i];
@@ -88,7 +88,7 @@ impl PolyLine2D {
             let sin_angle = segment_1.cross(&segment_2);
 
             if f64::abs(sin_angle) < 0.1 {
-                result.push(offset_segments[i][1] + &(offset_segments[i + 1][0] * 0.5));
+                result.push(offset_segments[i][1] + offset_segments[i + 1][0] * 0.5);
             } else if sin_angle * amount > 0. {
                 // outside turn
                 match cut_2d(
@@ -108,7 +108,7 @@ impl PolyLine2D {
             }
         }
 
-        result.push(*self.nodes.last().unwrap() + &(*segment_normals.last().unwrap() * amount));
+        result.push(*self.nodes.last().unwrap() + *segment_normals.last().unwrap() * amount);
 
         Self { nodes: result }
     }
@@ -174,9 +174,9 @@ impl PolyLine2D {
                     .unwrap()
             });
 
-            let x = results[0];
+            //let x = results[0];
 
-            return Ok(x);
+            Ok(results.remove(0))
         } else {
             Err(pyo3::exceptions::PyValueError::new_err("no cut found"))
         }

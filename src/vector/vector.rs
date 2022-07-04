@@ -25,22 +25,7 @@ pub trait Vector {
 }
 
 macro_rules! pyvector {
-    ($dst: ty) => {
-        impl ops::Add for $dst {
-            type Output = Self;
-
-            fn add(self, other: Self) -> Self {
-                Self { v: self.v + other.v }
-            }
-        }
-
-        impl ops::Sub for $dst {
-            type Output = Self;
-
-            fn sub(self, other: Self) -> Self {
-                Self { v: self.v - other.v }
-            }
-        }
+    ($dst: ident) => {
 
         impl Vector for $dst {
             fn copy(&self) -> Self {
@@ -72,41 +57,45 @@ macro_rules! pyvector {
             }
         }
 
-        impl ops::Add<&$dst> for $dst {
+        impl ops::Add for $dst {
             type Output = $dst;
 
-            fn add(self, other: &$dst) -> $dst {
-                let v = self.v + other.v;
-
-                Self { v }
+            fn add(self, other: $dst) -> Self::Output {
+                $dst { v: self.v + other.v }
             }
         }
-        impl ops::Sub<&$dst> for $dst {
+
+        impl ops::AddAssign for $dst {
+            fn add_assign(&mut self, other: Self) {
+                self.v = self.v + other.v;
+            }
+        }
+
+        impl ops::Sub for $dst {
             type Output = $dst;
 
-            fn sub(self, other: &$dst) -> $dst {
-                let v = self.v - other.v;
-
-                Self { v }
+            fn sub(self, other: $dst) -> Self::Output {
+                $dst { v: self.v - other.v }
             }
         }
+
         impl ops::Mul<f64> for $dst {
             type Output = $dst;
 
-            fn mul(self, other: f64) -> $dst {
+            fn mul(self, other: f64) -> Self::Output {
                 let v = self.v * other;
 
-                Self { v }
+                $dst { v }
             }
         }
 
         impl ops::Div<f64> for $dst {
             type Output = $dst;
 
-            fn div(self, other: f64) -> $dst {
+            fn div(self, other: f64) -> Self::Output {
                 let v = self.v / other;
 
-                Self { v }
+                $dst { v }
             }
         }
 
@@ -151,6 +140,10 @@ macro_rules! pyvector {
             }
 
             pub fn tolist(&self) -> [f64; Self::DIMENSIONS] {
+                self.v.into()
+            }
+
+            fn __json__(&self) -> [f64; Self::DIMENSIONS] {
                 self.v.into()
             }
 
@@ -238,6 +231,13 @@ impl Vector2D {
     }
 
     #[staticmethod]
+    pub fn zero() -> Self {
+        Self {
+            v: na::Vector2::zeros(),
+        }
+    }
+
+    #[staticmethod]
     pub fn scalar(v: f64) -> Self {
         let v = na::Vector2::new(v, v);
         Self { v }
@@ -269,6 +269,13 @@ impl Vector3D {
     pub fn __new__(v: [f64; 3]) -> Self {
         let v = na::Vector3::new(v[0], v[1], v[2]);
         Self { v }
+    }
+
+    #[staticmethod]
+    pub fn zero() -> Self {
+        Self {
+            v: na::Vector3::zeros(),
+        }
     }
 
     #[staticmethod]
@@ -335,12 +342,12 @@ pub fn cut_2d(
 
         let point = Vector2D::__new__([x, y]);
 
-        let diff1 = *l1_p2 - l1_p1;
-        let diff2 = *l2_p2 - l2_p1;
+        let diff1 = *l1_p2 - *l1_p1;
+        let diff2 = *l2_p2 - *l2_p1;
 
         Some(CutResult {
-            ik_1: (point - l1_p1).dot(&diff1) / diff1.dot(&diff1),
-            ik_2: (point - l2_p1).dot(&diff2) / diff2.dot(&diff2),
+            ik_1: (point - *l1_p1).dot(&diff1) / diff1.dot(&diff1),
+            ik_2: (point - *l2_p1).dot(&diff2) / diff2.dot(&diff2),
             point,
         })
     }

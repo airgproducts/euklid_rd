@@ -103,31 +103,17 @@ class TestPolyLine2D(TestPolyLine3D):
 
         self.assertEqual(len(cuts), 2)
         self.assertAlmostEqual(cuts[0][0], 1)
-    
 
     def test_fix(self):
         """Test self intersecting line"""
-        line = PolyLine2D([
-            [0,0],
-            [1,0],
-            [1,1],
-            [0.5, -1]
-        ]).fix_errors()
+        line = PolyLine2D([[0, 0], [1, 0], [1, 1], [0.5, -1]]).fix_errors()
 
         self.assertEqual(len(line), 3)
         self.assertEqual(line.nodes[1], Vector2D([0.75, 0]))
 
-
     def test_fix2(self):
         """Test self intersecting line (2)"""
-        nodes = [
-            [0,0],
-            [0.5,0],
-            [1,0],
-            [1.5,0.5],
-            [1,1],
-            [0.5, -1]
-        ]
+        nodes = [[0, 0], [0.5, 0], [1, 0], [1.5, 0.5], [1, 1], [0.5, -1]]
 
         line = PolyLine2D(nodes)
         line_fixed = line.fix_errors()
@@ -138,11 +124,13 @@ class TestPolyLine2D(TestPolyLine3D):
         self.assertEqual(line_fixed.nodes[3], line.nodes[-1])
 
     def test_fix_zero_length(self):
-        line = PolyLine2D([[0,0], [1,0],[1,1],[1,1+1e-8],[0,0]])
+        """
+        test if a zero-length segment gets removed
+        """
+        line = PolyLine2D([[0, 0], [1, 0], [1, 1], [1, 1 + 1e-8], [0, 0]])
         line_fixed = line.fix_errors()
 
-        self.assertEqual(len(line_fixed), len(line)-1)
-
+        self.assertEqual(len(line_fixed), len(line) - 1)
 
 
 if __name__ == "__main__":
