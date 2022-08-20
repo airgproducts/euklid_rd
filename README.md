@@ -27,11 +27,17 @@ To build the *euklid_rs* python module [PyO3](https://github.com/PyO3/pyo3) and 
 Install the latest version of Rust with the [Getting started](https://www.rust-lang.org/learn/get-started) guide.
 
 ```
+# create virtual environment
+python -m venv venv
+
+# activate venv
+source venv/bin/activate
+
 # Install python dependencies
 pip install -r ./requirements.txt
 
 # Build euklid_rs module
-maturin develop
+maturin dev
 
 # Run python tests with pytest
 pytest
