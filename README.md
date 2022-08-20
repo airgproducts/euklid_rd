@@ -16,6 +16,10 @@ A [Rust](https://www.rust-lang.org/) module with bindings for [python](https://w
 * PolyLines
 * Spline Curves
 
+## Support Table
+
+[support.md](./support.md)
+
 ## Development Setup
 
 To build the *euklid_rs* python module [PyO3](https://github.com/PyO3/pyo3) and [maturin](https://github.com/PyO3/maturin) is used.
