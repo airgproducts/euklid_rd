@@ -85,7 +85,7 @@ impl PolyLine2D {
         for i in 0..self.nodes.len() - 2 {
             let segment_1 = &segments_normalized[i];
             let segment_2 = &segments_normalized[i + 1];
-            let sin_angle = segment_1.cross(&segment_2);
+            let sin_angle = segment_1.cross(segment_2);
 
             if f64::abs(sin_angle) < 0.1 {
                 result.push(offset_segments[i][1] + offset_segments[i + 1][0] * 0.5);
@@ -132,11 +132,11 @@ impl PolyLine2D {
 
         // try all segments
         for i in 0..self.nodes.len() - 1 {
-            result = cut_2d(&self.nodes[i], &self.nodes[i + 1], &p1, &p2);
+            result = cut_2d(&self.nodes[i], &self.nodes[i + 1], p1, p2);
 
             if let Some(mut cut) = result {
                 if CUT_TOLERANCE < cut.ik_1 && cut.ik_1 <= 1. - CUT_TOLERANCE {
-                    cut.ik_1 = i as f64 + cut.ik_1;
+                    cut.ik_1 += i as f64;
                     results.push(cut);
                 } else if let Some(cut2) = last_result {
                     // catch tolerance values (close to a knot vector)
@@ -145,7 +145,7 @@ impl PolyLine2D {
                         && 1. - CUT_TOLERANCE < cut2.ik_1
                         && cut2.ik_1 <= 1. + CUT_TOLERANCE
                     {
-                        cut.ik_1 = i as f64 + cut.ik_1;
+                        cut.ik_1 += i as f64;
                         results.push(cut);
                     }
                 }
@@ -156,7 +156,7 @@ impl PolyLine2D {
         if let Some(mut cut) = result {
             // add value if for the last cut ik_1 is greater than 1 (extrapolate end)
             if cut.ik_1 > 1. - CUT_TOLERANCE {
-                cut.ik_1 = (self.nodes.len() - 1) as f64 + cut.ik_1;
+                cut.ik_1 += (self.nodes.len() - 1) as f64;
                 results.push(cut);
             }
         }
@@ -165,9 +165,9 @@ impl PolyLine2D {
     }
 
     fn cut_nearest(&self, p1: &Vector2D, p2: &Vector2D, ik_start: f64) -> PyResult<CutResult> {
-        let mut results = self.cut(&p1, &p2);
+        let mut results = self.cut(p1, p2);
 
-        if results.len() > 0 {
+        if !results.is_empty() {
             results.sort_by(|cut1, cut2| {
                 f64::abs(cut1.ik_1 - ik_start)
                     .partial_cmp(&f64::abs(cut2.ik_1 - ik_start))
@@ -222,7 +222,7 @@ impl PolyLine2D {
 
             for result in cuts {
                 if 0. <= result.ik_1
-                    && result.ik_1 < (line2_length - 1 as f64) - CUT_TOLERANCE
+                    && result.ik_1 < (line2_length - 1_f64) - CUT_TOLERANCE
                     && 0. <= result.ik_2
                     && result.ik_2 < 1.
                 {

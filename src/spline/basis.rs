@@ -23,9 +23,9 @@ fn choose(n: u64, k: u64) -> u64 {
             ktok *= t;
             n_new -= 1;
         }
-        return ntok / ktok;
+        ntok / ktok
     } else {
-        return 0;
+        0
     }
 }
 
@@ -73,13 +73,13 @@ impl<const DEGREE: usize> BSplineBasis<DEGREE> {
             if self.knots[index] < x && x <= self.knots[index + 1] {
                 return 1.;
             }
-            return 0.;
+            0.
         } else {
             let next_basis_1 = self.get_basis(degree - 1, index, x);
             let next_basis_2 = self.get_basis(degree - 1, index + 1, x);
 
             if index == 0 && x <= 0. {
-                return 1.;
+                1.
             } else {
                 let mut result = 0.;
 

@@ -335,7 +335,7 @@ pub fn cut_2d(
     let determinant = a1 * b2 - a2 * b1;
 
     if determinant.abs() < Vector2D::SMALL_N {
-        return None;
+        None
     } else {
         let x = (b2 * c1 - b1 * c2) / determinant;
         let y = (a1 * c2 - a2 * c1) / determinant;
