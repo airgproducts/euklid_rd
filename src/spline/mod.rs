@@ -9,6 +9,7 @@ pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
     fn spline(_py: Python, m: &PyModule) -> PyResult<()> {
         m.add_class::<curve::BezierCurve>()?;
+        m.add_class::<curve::BSplineCurve3>()?;
         Ok(())
     }
 
