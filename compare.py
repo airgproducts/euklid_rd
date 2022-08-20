@@ -31,21 +31,13 @@ def get_table():
     def space(x, char=" "):
         return char * (chars - len(x)) + x
 
-    table = "``` diff\n"
-    table += f"#|{space('Attribute')} | euklid | euklid_rs |\n"
-    table += f"#|{space('', '-')}-|--------|----------|\n"
+
+    table = f"|{space('Attribute')} | euklid | euklid_rs |\n"
+    table += f"|{space('', '-')}-|--------|----------|\n"
 
 
     for attribute in sorted(list(combined)):
-        if attribute not in b:
-            table += "-"
-        elif attribute not in a:
-            table += "+"
-        else:
-            table += "#"
-            
         table += f"|{space(attribute)} | "
-
         
         if attribute in a:
             table += "✓"
@@ -59,8 +51,6 @@ def get_table():
             table += "✗"
 
         table += "        |\n"
-    
-    table += "```"
     
     return table
 
