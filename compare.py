@@ -31,28 +31,35 @@ def get_table():
     def space(x, char=" "):
         return char * (chars - len(x)) + x
 
+    header = f"|{space('Attribute')} | euklid | euklid_rs |\n"
+    header += f"|{space('', '-')}-|--------|----------|\n"
 
-    table = f"|{space('Attribute')} | euklid | euklid_rs |\n"
-    table += f"|{space('', '-')}-|--------|----------|\n"
+    table_done = header
+    table_missing = header
 
 
     for attribute in sorted(list(combined)):
-        table += f"|{space(attribute)} | "
+        row = f"|{space(attribute)} | "
         
         if attribute in a:
-            table += "✓"
+            row += "✓"
         else:
-            table += "✗"
+            row += "✗"
         
-        table += "      | "
+        row += "      | "
         if attribute in b:
-            table += "✓"
+            row += "✓"
         else:
-            table += "✗"
+            row += "✗"
 
-        table += "        |\n"
+        row += "        |\n"
+
+        if attribute in b:
+            table_done += row
+        else:
+            table_missing += row
     
-    return table
+    return f"## Done\n\n{table_done}\n\n## Missing\n\n{table_missing}"
 
 
 if __name__ == "__main__":
