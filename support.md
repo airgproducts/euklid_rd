@@ -4,6 +4,11 @@
 
 |                               Attribute | euklid | euklid_rs |
 |-----------------------------------------|--------|----------|
+|             BSplineCurve3.controlpoints | ✗      | ✓        |
+|                      BSplineCurve3.copy | ✗      | ✓        |
+|                       BSplineCurve3.get | ✗      | ✓        |
+|              BSplineCurve3.get_sequence | ✗      | ✓        |
+|         BSplineCurve3.set_controlpoints | ✗      | ✓        |
 |               BezierCurve.controlpoints | ✓      | ✓        |
 |                        BezierCurve.copy | ✓      | ✓        |
 |                         BezierCurve.get | ✓      | ✓        |
@@ -135,6 +140,8 @@
 |             LinSplineCurve.get_derivate | ✓      | ✗        |
 |             LinSplineCurve.get_sequence | ✓      | ✗        |
 |                LinSplineCurve.numpoints | ✓      | ✗        |
+|                   PolyLine2D.bool_union | ✓      | ✗        |
+|                        PolyLine2D.close | ✓      | ✗        |
 |                     PolyLine2D.contains | ✓      | ✗        |
 |                     PolyLine2D.get_area | ✓      | ✗        |
 |         PolyLine2D.get_segment_lengthes | ✓      | ✗        |

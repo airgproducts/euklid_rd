@@ -1,7 +1,7 @@
 use nalgebra as na;
 use pyo3::prelude::*;
 
-use crate::vector::vector;
+use crate::vector::_vector;
 
 #[pyclass]
 #[derive(Clone, Copy, Debug)]
@@ -25,17 +25,17 @@ impl Transformation {
     ///
     /// apply(self: euklid_rs.vector.Transformation, other: euklid_rs.vector.Vector3D) -> euklid_rs.vector.Vector3D
     /// apply the transformation to a Vector3D
-    pub fn apply(&self, vec: &vector::Vector3D) -> vector::Vector3D {
+    pub fn apply(&self, vec: &_vector::Vector3D) -> _vector::Vector3D {
         let p = self.matrix.transform_point(&vec.v.into());
 
-        vector::Vector3D { v: p.coords }
+        _vector::Vector3D { v: p.coords }
     }
 
-    pub fn apply_inverse(&self, vec: &vector::Vector3D) -> Option<vector::Vector3D> {
+    pub fn apply_inverse(&self, vec: &_vector::Vector3D) -> Option<_vector::Vector3D> {
         match self.inverse {
             Some(inverse) => {
                 let p = inverse.transform_point(&vec.v.into());
-                Some(vector::Vector3D { v: p.coords })
+                Some(_vector::Vector3D { v: p.coords })
             }
             None => None,
         }
@@ -57,7 +57,7 @@ impl Transformation {
     /// translation(vec: euklid_rs.vector.Vector3D) -> euklid_rs.vector.Transformation
     /// create a translation
     #[staticmethod]
-    pub fn translation(vec: &vector::Vector3D) -> Self {
+    pub fn translation(vec: &_vector::Vector3D) -> Self {
         //let translation = na::geometry::Translation3::from(vec.v);
         let translation = na::geometry::Translation3::new(vec.v[0], vec.v[1], vec.v[2]);
         let matrix = translation.to_homogeneous();
@@ -70,7 +70,7 @@ impl Transformation {
     /// --
     ///
     /// rotation(angle: float, axis: euklid_rs.vector.Vector3D) -> euklid_rs.vector.Transformation
-    pub fn rotation(angle: f64, axis: &vector::Vector3D) -> Self {
+    pub fn rotation(angle: f64, axis: &_vector::Vector3D) -> Self {
         let scaled_axis = axis.normalized().v * angle;
         let rotation = na::Rotation3::from_scaled_axis(scaled_axis);
         let matrix = rotation.to_homogeneous();

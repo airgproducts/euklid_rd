@@ -1,6 +1,6 @@
 use crate::polyline::polyline::polyline_2d::{InitArgs, PolyLine2D};
 extern crate pyo3;
-use crate::vector::vector::*;
+use crate::vector::_vector::*;
 use pyo3::prelude::*;
 
 const CUT_TOLERANCE: f64 = 1e-5;
@@ -220,7 +220,7 @@ impl PolyLine2D {
 
             let cuts = line2.cut_nearest(&self.nodes[start], &self.nodes[start + 1], line2_length);
 
-            for result in cuts {
+            if let Ok(result) = cuts {
                 if 0. <= result.ik_1
                     && result.ik_1 < (line2_length - 1_f64) - CUT_TOLERANCE
                     && 0. <= result.ik_2

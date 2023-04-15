@@ -3,7 +3,7 @@ macro_rules! define_polyline {
         // use a module-namespace to shadow arg-enums
         pub mod $module {
 
-            use crate::vector::vector::*;
+            use crate::vector::_vector::*;
             use pyo3::prelude::*;
             use pyo3::types::IntoPyDict;
 

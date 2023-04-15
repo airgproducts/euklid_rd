@@ -1,5 +1,5 @@
+use crate::vector::_vector;
 use crate::vector::transform;
-use crate::vector::vector;
 use nalgebra as na;
 use pyo3::prelude::*;
 
@@ -7,16 +7,16 @@ use pyo3::prelude::*;
 #[derive(Clone, Copy)]
 pub struct Plane {
     #[pyo3(get, set)]
-    pub p0: vector::Vector3D,
+    pub p0: _vector::Vector3D,
 
     #[pyo3(get, set)]
-    pub x_vector: vector::Vector3D,
+    pub x_vector: _vector::Vector3D,
 
     #[pyo3(get, set)]
-    pub y_vector: vector::Vector3D,
+    pub y_vector: _vector::Vector3D,
 
     #[pyo3(get, set)]
-    pub normvector: vector::Vector3D,
+    pub normvector: _vector::Vector3D,
 
     transformation: transform::Transformation,
 }
@@ -24,7 +24,7 @@ pub struct Plane {
 #[pymethods]
 impl Plane {
     #[new]
-    fn __new__(p0: vector::Vector3D, v1: vector::Vector3D, v2: vector::Vector3D) -> Self {
+    fn __new__(p0: _vector::Vector3D, v1: _vector::Vector3D, v2: _vector::Vector3D) -> Self {
         let n = v1.cross(&v2);
         let mut matrix = na::Matrix4::<f64>::new(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -43,29 +43,29 @@ impl Plane {
 
     #[staticmethod]
     fn setup(transformation: transform::Transformation) -> Self {
-        let p0 = transformation.apply(&vector::Vector3D {
+        let p0 = transformation.apply(&_vector::Vector3D {
             v: na::Vector3::<f64>::new(0., 0., 0.),
         });
 
-        let x_vector = vector::Vector3D {
+        let x_vector = _vector::Vector3D {
             v: transformation
-                .apply(&vector::Vector3D {
+                .apply(&_vector::Vector3D {
                     v: na::Vector3::<f64>::new(1., 0., 0.),
                 })
                 .v
                 - p0.v,
         };
-        let y_vector = vector::Vector3D {
+        let y_vector = _vector::Vector3D {
             v: transformation
-                .apply(&vector::Vector3D {
+                .apply(&_vector::Vector3D {
                     v: na::Vector3::<f64>::new(0., 1., 0.),
                 })
                 .v
                 - p0.v,
         };
-        let normvector = vector::Vector3D {
+        let normvector = _vector::Vector3D {
             v: transformation
-                .apply(&vector::Vector3D {
+                .apply(&_vector::Vector3D {
                     v: na::Vector3::<f64>::new(0., 0., 1.),
                 })
                 .v
@@ -80,19 +80,19 @@ impl Plane {
         }
     }
 
-    fn project(&self, vec: vector::Vector3D) -> vector::Vector2D {
+    fn project(&self, vec: _vector::Vector3D) -> _vector::Vector2D {
         let diff = vec - self.p0;
 
         let x = self.x_vector.dot(&diff);
         let y = self.y_vector.dot(&diff);
 
         let v = na::Vector2::new(x, y);
-        vector::Vector2D { v }
+        _vector::Vector2D { v }
     }
 
-    fn align(&self, vec: vector::Vector2D) -> vector::Vector3D {
+    fn align(&self, vec: _vector::Vector2D) -> _vector::Vector3D {
         let v = na::Vector3::<f64>::new(vec.v[0], vec.v[1], 0.);
-        let vec_3d = vector::Vector3D { v };
+        let vec_3d = _vector::Vector3D { v };
 
         self.transformation.apply(&vec_3d)
     }

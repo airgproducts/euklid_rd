@@ -2,12 +2,12 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::wrap_pymodule;
 
-mod plane;
+mod plane_struct;
 
 pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
     fn plane(_py: Python, m: &PyModule) -> PyResult<()> {
-        m.add_class::<plane::Plane>()?;
+        m.add_class::<plane_struct::Plane>()?;
         Ok(())
     }
 

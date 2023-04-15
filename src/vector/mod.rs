@@ -2,11 +2,11 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::wrap_pymodule;
 
+pub mod _vector;
 pub mod transform;
-pub mod vector;
 
+pub use _vector::{Vector2D, Vector3D};
 pub use transform::Transformation;
-pub use vector::{Vector2D, Vector3D};
 
 pub fn register(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pymodule]
